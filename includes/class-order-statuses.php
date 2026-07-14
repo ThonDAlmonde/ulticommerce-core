@@ -124,8 +124,8 @@ class UltiCommerce_Order_Statuses {
             <?php foreach ( self::get_statuses() as $slug => $label ) :
                 $disabled = ! in_array( $slug, $allowed, true ) && $slug !== $current ? 'disabled' : '';
             ?>
-                <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $current, $slug ); ?> <?php echo $disabled; ?>>
-                    <?php echo esc_html( $label ); ?><?php echo $disabled ? ' — ' . __( 'not allowed', 'ulticommerce-core' ) : ''; ?>
+                <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $current, $slug ); ?> <?php echo esc_attr( $disabled ); ?>>
+                    <?php echo esc_html( $label ); ?><?php echo $disabled ? ' — ' . esc_html__( 'not allowed', 'ulticommerce-core' ) : ''; ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -148,7 +148,7 @@ jQuery(function($) {
             action: "ulti_update_order_status",
             post_id: postId,
             status: status,
-            _ajax_nonce: "' . wp_create_nonce( 'ulti_update_status_' . $post->ID ) . '"
+            _ajax_nonce: "' . esc_js( wp_create_nonce( 'ulti_update_status_' . $post->ID ) ) . '"
         }, function(resp) {
             spinner.removeClass("is-active");
             if (resp.success) {
@@ -168,7 +168,7 @@ jQuery(function($) {
         $post_id = intval( $_POST['post_id'] );
         $status  = sanitize_text_field( $_POST['status'] );
 
-        check_ajax_referer( 'ulti_update_status_' . $post_id );
+        check_ajax_referer( 'ulti_update_status_' . $post_id, '_ajax_nonce' );
 
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             wp_send_json_error( [ 'message' => 'Unauthorized.' ] );
@@ -178,9 +178,9 @@ jQuery(function($) {
 
         if ( ! self::can_transition( $old_status, $status ) ) {
             wp_send_json_error( [ 'message' => sprintf(
-                __( 'Cannot change from "%s" to "%s".', 'ulticommerce-core' ),
-                self::get_label( $old_status ),
-                self::get_label( $status )
+                esc_html__( 'Cannot change from "%s" to "%s".', 'ulticommerce-core' ),
+                esc_html( self::get_label( $old_status ) ),
+                esc_html( self::get_label( $status ) )
             ) ] );
         }
 

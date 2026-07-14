@@ -14,7 +14,7 @@ class UltiCommerce_Product_Variations {
     public function add_variations_meta_box() {
         add_meta_box(
             'product_variations',
-            __( 'Product Variations', 'ulticommerce-core' ),
+            esc_html__( 'Product Variations', 'ulticommerce-core' ),
             [ $this, 'render_variations_meta_box' ],
             'product',
             'normal',
@@ -90,7 +90,7 @@ class UltiCommerce_Product_Variations {
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
-    var attrs = ' . json_encode( $attrs ) . ';
+    var attrs = ' . wp_json_encode( $attrs ) . ';
     var basePrice = "' . esc_js( $base_price ) . '";
     var baseSku = "' . esc_js( $base_sku ) . '";
 
@@ -171,9 +171,12 @@ jQuery(function($) {
     }
 
     public function ajax_save_variations() {
-        check_ajax_referer( 'ulti_save_variations' );
+        check_ajax_referer( 'ulti_save_variations', '_ajax_nonce' );
 
         $post_id    = intval( $_POST['post_id'] );
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error();
+        }
         $variations = json_decode( stripslashes( $_POST['variations'] ), true );
 
         if ( ! $variations || ! is_array( $variations ) ) {
@@ -275,7 +278,7 @@ jQuery(function($) {
     }
 
     public function add_variations_column( $columns ) {
-        $columns['product_variations'] = __( 'Variations', 'ulticommerce-core' );
+        $columns['product_variations'] = esc_html__( 'Variations', 'ulticommerce-core' );
         return $columns;
     }
 

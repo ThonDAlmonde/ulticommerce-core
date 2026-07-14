@@ -18,6 +18,14 @@ class UltiCommerce_Webhook_Handler {
     }
 
     public function handle_confirm( $request ) {
+        $secret = get_option( 'ulti_webhook_secret', '' );
+        if ( $secret ) {
+            $provided = $request->get_header( 'X-Webhook-Secret' );
+            if ( ! $provided || ! hash_equals( $secret, $provided ) ) {
+                return new WP_Error( 'unauthorized', 'Invalid webhook secret', [ 'status' => 401 ] );
+            }
+        }
+
         $body = $request->get_json_params();
         $order_id       = intval( $body['order_id'] ?? 0 );
         $transaction_id = sanitize_text_field( $body['transaction_id'] ?? '' );

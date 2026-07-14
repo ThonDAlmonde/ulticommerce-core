@@ -19,16 +19,16 @@ class UltiCommerce_Subscriber_CPT {
     public function register_post_type() {
         register_post_type( 'ulti_subscriber', [
             'labels'              => [
-                'name'               => __( 'Subscribers', 'ulticommerce-core' ),
-                'singular_name'      => __( 'Subscriber', 'ulticommerce-core' ),
-                'add_new'            => __( 'Add New', 'ulticommerce-core' ),
-                'add_new_item'       => __( 'Add New Subscriber', 'ulticommerce-core' ),
-                'edit_item'          => __( 'Edit Subscriber', 'ulticommerce-core' ),
-                'view_item'          => __( 'View Subscriber', 'ulticommerce-core' ),
-                'search_items'       => __( 'Search Subscribers', 'ulticommerce-core' ),
-                'not_found'          => __( 'No subscribers found.', 'ulticommerce-core' ),
-                'not_found_in_trash' => __( 'No subscribers in Trash.', 'ulticommerce-core' ),
-                'all_items'          => __( 'All Subscribers', 'ulticommerce-core' ),
+                'name'               => esc_html__( 'Subscribers', 'ulticommerce-core' ),
+                'singular_name'      => esc_html__( 'Subscriber', 'ulticommerce-core' ),
+                'add_new'            => esc_html__( 'Add New', 'ulticommerce-core' ),
+                'add_new_item'       => esc_html__( 'Add New Subscriber', 'ulticommerce-core' ),
+                'edit_item'          => esc_html__( 'Edit Subscriber', 'ulticommerce-core' ),
+                'view_item'          => esc_html__( 'View Subscriber', 'ulticommerce-core' ),
+                'search_items'       => esc_html__( 'Search Subscribers', 'ulticommerce-core' ),
+                'not_found'          => esc_html__( 'No subscribers found.', 'ulticommerce-core' ),
+                'not_found_in_trash' => esc_html__( 'No subscribers in Trash.', 'ulticommerce-core' ),
+                'all_items'          => esc_html__( 'All Subscribers', 'ulticommerce-core' ),
             ],
             'public'              => false,
             'publicly_queryable'  => false,
@@ -46,9 +46,9 @@ class UltiCommerce_Subscriber_CPT {
     public function custom_columns( $columns ) {
         $date = $columns['date'];
         unset( $columns['date'] );
-        $columns['email']      = __( 'Email', 'ulticommerce-core' );
-        $columns['status']     = __( 'Status', 'ulticommerce-core' );
-        $columns['source']     = __( 'Source', 'ulticommerce-core' );
+        $columns['email']      = esc_html__( 'Email', 'ulticommerce-core' );
+        $columns['status']     = esc_html__( 'Status', 'ulticommerce-core' );
+        $columns['source']     = esc_html__( 'Source', 'ulticommerce-core' );
         $columns['date']       = $date;
         return $columns;
     }
@@ -84,9 +84,9 @@ class UltiCommerce_Subscriber_CPT {
         $nonce = wp_create_nonce( 'toggle_subscriber_' . $post->ID );
 
         if ( $status === 'active' ) {
-            $actions['unsubscribe'] = '<a href="#" class="subscriber-toggle" data-post-id="' . esc_attr( $post->ID ) . '" data-nonce="' . esc_attr( $nonce ) . '" data-action="unsubscribe">' . __( 'Unsubscribe', 'ulticommerce-core' ) . '</a>';
+            $actions['unsubscribe'] = '<a href="#" class="subscriber-toggle" data-post-id="' . esc_attr( $post->ID ) . '" data-nonce="' . esc_attr( $nonce ) . '" data-action="unsubscribe">' . esc_html__( 'Unsubscribe', 'ulticommerce-core' ) . '</a>';
         } else {
-            $actions['resubscribe'] = '<a href="#" class="subscriber-toggle" data-post-id="' . esc_attr( $post->ID ) . '" data-nonce="' . esc_attr( $nonce ) . '" data-action="resubscribe">' . __( 'Resubscribe', 'ulticommerce-core' ) . '</a>';
+            $actions['resubscribe'] = '<a href="#" class="subscriber-toggle" data-post-id="' . esc_attr( $post->ID ) . '" data-nonce="' . esc_attr( $nonce ) . '" data-action="resubscribe">' . esc_html__( 'Resubscribe', 'ulticommerce-core' ) . '</a>';
         }
 
         unset( $actions['edit'], $actions['inline hide-if-no-js'], $actions['view'] );
@@ -101,7 +101,11 @@ class UltiCommerce_Subscriber_CPT {
             wp_send_json_error( [ 'message' => __( 'Invalid request.', 'ulticommerce-core' ) ] );
         }
 
-        check_ajax_referer( 'toggle_subscriber_' . $post_id );
+        check_ajax_referer( 'toggle_subscriber_' . $post_id, '_ajax_nonce' );
+
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unauthorized.', 'ulticommerce-core' ) ] );
+        }
 
         update_post_meta( $post_id, '_subscriber_status', $new_status );
 
@@ -117,6 +121,7 @@ class UltiCommerce_Subscriber_CPT {
 
     public function export_button( $post_type ) {
         if ( $post_type !== 'ulti_subscriber' ) return;
+        wp_nonce_field( 'export_subscribers_csv', '_wpnonce_export_csv' );
         ?>
         <button type="submit" name="export_subscribers_csv" value="1" class="button" style="margin-left:6px;">
             <?php esc_html_e( 'Export CSV', 'ulticommerce-core' ); ?>
@@ -128,6 +133,11 @@ class UltiCommerce_Subscriber_CPT {
         if ( empty( $_GET['export_subscribers_csv'] ) || empty( $_GET['post_type'] ) || $_GET['post_type'] !== 'ulti_subscriber' ) {
             return;
         }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Unauthorized.' );
+        }
+        check_admin_referer( 'export_subscribers_csv', '_wpnonce_export_csv' );
 
         $subscribers = get_posts( [
             'post_type'      => 'ulti_subscriber',

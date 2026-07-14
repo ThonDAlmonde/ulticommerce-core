@@ -43,7 +43,7 @@ class UltiCommerce_Product_CPT {
     public function add_meta_boxes() {
         add_meta_box(
             'product_details',
-            __( 'Product Details', 'ulticommerce-core' ),
+            esc_html__( 'Product Details', 'ulticommerce-core' ),
             [ $this, 'render_meta_box' ],
             'product',
             'normal',
@@ -52,7 +52,7 @@ class UltiCommerce_Product_CPT {
 
         add_meta_box(
             'product_gallery',
-            __( 'Product Gallery', 'ulticommerce-core' ),
+            esc_html__( 'Product Gallery', 'ulticommerce-core' ),
             [ $this, 'render_gallery_meta_box' ],
             'product',
             'side'
@@ -60,7 +60,7 @@ class UltiCommerce_Product_CPT {
 
         add_meta_box(
             'product_enable',
-            __( 'Product Status', 'ulticommerce-core' ),
+            esc_html__( 'Product Status', 'ulticommerce-core' ),
             [ $this, 'render_enable_meta_box' ],
             'product',
             'side'
@@ -112,10 +112,12 @@ class UltiCommerce_Product_CPT {
             <button type="button" class="button" id="add-gallery-images"><?php esc_html_e( 'Add Gallery Images', 'ulticommerce-core' ); ?></button>
         </div>
         <?php
+        $thumb_nonce = wp_create_nonce( 'ulti_get_attachment_thumb' );
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
     var frame;
+    var thumbNonce = "' . esc_js( $thumb_nonce ) . '";
     $("#add-gallery-images").on("click", function(e) {
         e.preventDefault();
         if (frame) { frame.open(); return; }
@@ -123,7 +125,7 @@ jQuery(function($) {
         frame.on("select", function() {
             var ids = frame.state().get("selection").map(function(a) { return a.id; });
             ids.forEach(function(id) {
-                $.post(ajaxurl, { action: "ulti_get_attachment_thumb", attachment_id: id }, function(html) {
+                $.post(ajaxurl, { action: "ulti_get_attachment_thumb", attachment_id: id, _ajax_nonce: thumbNonce }, function(html) {
                     $("#product-gallery-list").append(
                         "<li data-id=\"" + id + "\">" + html + "<input type=\"hidden\" name=\"_product_gallery[]\" value=\"" + id + "\"><a href=\"#\" class=\"remove-gallery-item\">&times;</a></li>"
                     );
@@ -154,7 +156,7 @@ jQuery(function($) {
     }
 
     public function save_meta( $post_id ) {
-        if ( ! isset( $_POST['product_details_nonce'] ) || ! wp_verify_nonce( $_POST['product_details_nonce'], 'product_details_save' ) ) {
+        if ( ! isset( $_POST['product_details_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product_details_nonce'] ) ), 'product_details_save' ) ) {
             return;
         }
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -198,6 +200,10 @@ new UltiCommerce_Product_CPT();
 
 add_action( 'wp_ajax_ulti_get_attachment_thumb', 'ulti_get_attachment_thumb_cb' );
 function ulti_get_attachment_thumb_cb() {
+    if ( ! current_user_can( 'upload_files' ) ) {
+        wp_die( 'Unauthorized.' );
+    }
+    check_ajax_referer( 'ulti_get_attachment_thumb', '_ajax_nonce' );
     $id = intval( $_POST['attachment_id'] );
     echo wp_get_attachment_image( $id, 'thumbnail' );
     wp_die();

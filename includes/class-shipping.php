@@ -345,14 +345,14 @@ jQuery(function($) {
         check_admin_referer( 'ulti_shipping_csv' );
 
         if ( empty( $_FILES['shipping_csv']['tmp_name'] ) ) {
-            wp_die( __( 'No file uploaded.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'No file uploaded.', 'ulticommerce-core' ) );
         }
 
         $handle = fopen( $_FILES['shipping_csv']['tmp_name'], 'r' );
-        if ( ! $handle ) wp_die( __( 'Cannot read file.', 'ulticommerce-core' ) );
+        if ( ! $handle ) wp_die( esc_html__( 'Cannot read file.', 'ulticommerce-core' ) );
 
         $header = fgetcsv( $handle );
-        if ( ! $header ) { fclose( $handle ); wp_die( __( 'Empty CSV.', 'ulticommerce-core' ) ); }
+        if ( ! $header ) { fclose( $handle ); wp_die( esc_html__( 'Empty CSV.', 'ulticommerce-core' ) ); }
 
         $header = array_map( 'trim', $header );
         $header = array_map( 'strtolower', $header );
@@ -394,7 +394,7 @@ jQuery(function($) {
         fclose( $handle );
 
         if ( empty( $rates ) ) {
-            wp_die( __( 'No valid rows found in CSV.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'No valid rows found in CSV.', 'ulticommerce-core' ) );
         }
 
         $existing = get_option( 'ulti_shipping_rates', [] );

@@ -62,7 +62,7 @@ class Ulti_Gateway_BankWire extends Ulti_Payment_Gateway {
 
     public function __construct() {
         parent::__construct( 'bank_wire', 'Bank Wire Transfer' );
-        $this->description = __( 'Pay via bank wire transfer. After placing your order, transfer the total amount to our bank account. Your order will be processed once payment is confirmed.', 'ulticommerce-core' );
+        $this->description = esc_html__( 'Pay via bank wire transfer. After placing your order, transfer the total amount to our bank account. Your order will be processed once payment is confirmed.', 'ulticommerce-core' );
     }
 
     public function process_payment( $order_id ) {

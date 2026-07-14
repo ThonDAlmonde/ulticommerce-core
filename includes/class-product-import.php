@@ -138,7 +138,7 @@ class UltiCommerce_Product_Import {
         if ( ! $header ) wp_die( 'Empty CSV file.' );
 
         $header = array_map( 'strtolower', array_map( 'trim', $header ) );
-        $update_existing = ! empty( $_POST['update_existing'] );
+        $update_existing = ! empty( $_POST['update_existing'] ) ? intval( $_POST['update_existing'] ) : 0;
 
         $results = [ 'success' => 0, 'error' => 0, 'skipped' => 0, 'log' => [] ];
 
