@@ -3,7 +3,7 @@
  * Plugin Name: UltiCommerce Core
  * Plugin URI:  https://github.com/ThonDAlmonde/ulticommerce-core
  * Description: Core e-commerce plugin for UltiCommerce. Products, orders, cart, checkout, shipping, and coupons.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      UltiCommerce
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'ULTI_COMMERCE_VERSION', '1.0.0' );
+define( 'ULTI_COMMERCE_VERSION', '1.1.0' );
 define( 'ULTI_COMMERCE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'ULTI_COMMERCE_URL', plugin_dir_url( __FILE__ ) );
 
