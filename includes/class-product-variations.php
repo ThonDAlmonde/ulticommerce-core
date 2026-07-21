@@ -14,7 +14,7 @@ class UltiCommerce_Product_Variations {
     public function add_variations_meta_box() {
         add_meta_box(
             'product_variations',
-            esc_html__( 'Product Variations', 'ulticommerce-core' ),
+            esc_html__( 'Product Variations', 'ulticommerce' ),
             [ $this, 'render_variations_meta_box' ],
             'product',
             'normal',
@@ -29,21 +29,21 @@ class UltiCommerce_Product_Variations {
         $base_sku   = get_post_meta( $post->ID, '_product_sku', true );
         ?>
         <div id="variations-wrap">
-            <p><?php esc_html_e( 'Generate variations from attribute combinations.', 'ulticommerce-core' ); ?></p>
+            <p><?php esc_html_e( 'Generate variations from attribute combinations.', 'ulticommerce' ); ?></p>
 
             <?php if ( empty( $attrs ) ) : ?>
-                <p><em><?php esc_html_e( 'Add attributes first to create variations.', 'ulticommerce-core' ); ?></em></p>
+                <p><em><?php esc_html_e( 'Add attributes first to create variations.', 'ulticommerce' ); ?></em></p>
             <?php else : ?>
                 <table class="widefat fixed" id="variations-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'SKU', 'ulticommerce-core' ); ?></th>
+                            <th><?php esc_html_e( 'SKU', 'ulticommerce' ); ?></th>
                             <?php foreach ( $attrs as $attr_name => $attr_data ) : ?>
                                 <th><?php echo esc_html( get_term_by( 'slug', $attr_name, 'product_attribute' )->name ?? $attr_name ); ?></th>
                             <?php endforeach; ?>
-                            <th><?php esc_html_e( 'Price', 'ulticommerce-core' ); ?></th>
-                            <th><?php esc_html_e( 'Quantity', 'ulticommerce-core' ); ?></th>
-                            <th><?php esc_html_e( 'Actions', 'ulticommerce-core' ); ?></th>
+                            <th><?php esc_html_e( 'Price', 'ulticommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Quantity', 'ulticommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Actions', 'ulticommerce' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,13 +65,13 @@ class UltiCommerce_Product_Variations {
                                     <?php endforeach; ?>
                                     <td><input type="number" step="0.01" class="var-price" value="<?php echo esc_attr( $var['price'] ); ?>"></td>
                                     <td><input type="number" class="var-qty" value="<?php echo esc_attr( $var['quantity'] ); ?>"></td>
-                                    <td><a href="#" class="remove-variation"><?php esc_html_e( 'Remove', 'ulticommerce-core' ); ?></a></td>
+                                    <td><a href="#" class="remove-variation"><?php esc_html_e( 'Remove', 'ulticommerce' ); ?></a></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else : ?>
                             <tr class="no-variations">
                                 <td colspan="<?php echo count( $attrs ) + 4; ?>">
-                                    <?php esc_html_e( 'No variations yet. Click "Generate All Combinations" to create them.', 'ulticommerce-core' ); ?>
+                                    <?php esc_html_e( 'No variations yet. Click "Generate All Combinations" to create them.', 'ulticommerce' ); ?>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -79,8 +79,8 @@ class UltiCommerce_Product_Variations {
                 </table>
 
                 <p style="margin-top:10px;">
-                    <button type="button" class="button" id="generate-variations"><?php esc_html_e( 'Generate All Combinations', 'ulticommerce-core' ); ?></button>
-                    <button type="button" class="button button-primary" id="save-variations"><?php esc_html_e( 'Save Variations', 'ulticommerce-core' ); ?></button>
+                    <button type="button" class="button" id="generate-variations"><?php esc_html_e( 'Generate All Combinations', 'ulticommerce' ); ?></button>
+                    <button type="button" class="button button-primary" id="save-variations"><?php esc_html_e( 'Save Variations', 'ulticommerce' ); ?></button>
                     <span class="spinner" style="float:none;margin-top:0;"></span>
                 </p>
             <?php endif; ?>
@@ -159,9 +159,9 @@ jQuery(function($) {
         }, function(resp) {
             $spinner.removeClass("is-active");
             if (resp.success) {
-                alert("' . esc_js( __( 'Variations saved!', 'ulticommerce-core' ) ) . '");
+                alert("' . esc_js( __( 'Variations saved!', 'ulticommerce' ) ) . '");
             } else {
-                alert("' . esc_js( __( 'Error saving variations.', 'ulticommerce-core' ) ) . '");
+                alert("' . esc_js( __( 'Error saving variations.', 'ulticommerce' ) ) . '");
             }
         });
     });
@@ -281,7 +281,7 @@ jQuery(function($) {
     }
 
     public function add_variations_column( $columns ) {
-        $columns['product_variations'] = esc_html__( 'Variations', 'ulticommerce-core' );
+        $columns['product_variations'] = esc_html__( 'Variations', 'ulticommerce' );
         return $columns;
     }
 

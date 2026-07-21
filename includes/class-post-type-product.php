@@ -13,18 +13,18 @@ class UltiCommerce_Product_CPT {
 
     public function register_post_type() {
         $labels = [
-            'name'                  => __( 'Products', 'ulticommerce-core' ),
-            'singular_name'         => __( 'Product', 'ulticommerce-core' ),
-            'add_new'               => __( 'Add New', 'ulticommerce-core' ),
-            'add_new_item'          => __( 'Add New Product', 'ulticommerce-core' ),
-            'edit_item'             => __( 'Edit Product', 'ulticommerce-core' ),
-            'new_item'              => __( 'New Product', 'ulticommerce-core' ),
-            'view_item'             => __( 'View Product', 'ulticommerce-core' ),
-            'search_items'          => __( 'Search Products', 'ulticommerce-core' ),
-            'not_found'             => __( 'No products found', 'ulticommerce-core' ),
-            'not_found_in_trash'    => __( 'No products found in Trash', 'ulticommerce-core' ),
-            'all_items'             => __( 'All Products', 'ulticommerce-core' ),
-            'menu_name'             => __( 'Products', 'ulticommerce-core' ),
+            'name'                  => __( 'Products', 'ulticommerce' ),
+            'singular_name'         => __( 'Product', 'ulticommerce' ),
+            'add_new'               => __( 'Add New', 'ulticommerce' ),
+            'add_new_item'          => __( 'Add New Product', 'ulticommerce' ),
+            'edit_item'             => __( 'Edit Product', 'ulticommerce' ),
+            'new_item'              => __( 'New Product', 'ulticommerce' ),
+            'view_item'             => __( 'View Product', 'ulticommerce' ),
+            'search_items'          => __( 'Search Products', 'ulticommerce' ),
+            'not_found'             => __( 'No products found', 'ulticommerce' ),
+            'not_found_in_trash'    => __( 'No products found in Trash', 'ulticommerce' ),
+            'all_items'             => __( 'All Products', 'ulticommerce' ),
+            'menu_name'             => __( 'Products', 'ulticommerce' ),
         ];
 
         register_post_type( 'product', [
@@ -43,7 +43,7 @@ class UltiCommerce_Product_CPT {
     public function add_meta_boxes() {
         add_meta_box(
             'product_details',
-            esc_html__( 'Product Details', 'ulticommerce-core' ),
+            esc_html__( 'Product Details', 'ulticommerce' ),
             [ $this, 'render_meta_box' ],
             'product',
             'normal',
@@ -52,7 +52,7 @@ class UltiCommerce_Product_CPT {
 
         add_meta_box(
             'product_gallery',
-            esc_html__( 'Product Gallery', 'ulticommerce-core' ),
+            esc_html__( 'Product Gallery', 'ulticommerce' ),
             [ $this, 'render_gallery_meta_box' ],
             'product',
             'side'
@@ -60,7 +60,7 @@ class UltiCommerce_Product_CPT {
 
         add_meta_box(
             'product_enable',
-            esc_html__( 'Product Status', 'ulticommerce-core' ),
+            esc_html__( 'Product Status', 'ulticommerce' ),
             [ $this, 'render_enable_meta_box' ],
             'product',
             'side'
@@ -109,7 +109,7 @@ class UltiCommerce_Product_CPT {
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <button type="button" class="button" id="add-gallery-images"><?php esc_html_e( 'Add Gallery Images', 'ulticommerce-core' ); ?></button>
+            <button type="button" class="button" id="add-gallery-images"><?php esc_html_e( 'Add Gallery Images', 'ulticommerce' ); ?></button>
         </div>
         <?php
         $thumb_nonce = wp_create_nonce( 'ulti_get_attachment_thumb' );
@@ -121,7 +121,7 @@ jQuery(function($) {
     $("#add-gallery-images").on("click", function(e) {
         e.preventDefault();
         if (frame) { frame.open(); return; }
-        frame = wp.media({ title: "' . esc_js( __( 'Select Gallery Images', 'ulticommerce-core' ) ) . '", multiple: true, library: { type: "image" } });
+        frame = wp.media({ title: "' . esc_js( __( 'Select Gallery Images', 'ulticommerce' ) ) . '", multiple: true, library: { type: "image" } });
         frame.on("select", function() {
             var ids = frame.state().get("selection").map(function(a) { return a.id; });
             ids.forEach(function(id) {
@@ -150,7 +150,7 @@ jQuery(function($) {
         ?>
         <label>
             <input type="checkbox" name="_product_enabled" value="1" <?php checked( $enabled, '1' ); ?>>
-            <?php esc_html_e( 'Enable Product', 'ulticommerce-core' ); ?>
+            <?php esc_html_e( 'Enable Product', 'ulticommerce' ); ?>
         </label>
         <?php
     }

@@ -12,8 +12,8 @@ class UltiCommerce_Payment_Settings {
     public function add_settings_page() {
         add_submenu_page(
             'edit.php?post_type=order',
-            __( 'Payment Settings', 'ulticommerce-core' ),
-            __( 'Payments', 'ulticommerce-core' ),
+            __( 'Payment Settings', 'ulticommerce' ),
+            __( 'Payments', 'ulticommerce' ),
             'manage_options',
             'ulti-payment-settings',
             [ $this, 'render_page' ]
@@ -57,39 +57,39 @@ class UltiCommerce_Payment_Settings {
             <form method="post" action="options.php">
                 <?php settings_fields( 'ulti_payment_settings' ); ?>
 
-                <h2 style="margin-top:24px;"><?php esc_html_e( 'Bank Wire Details', 'ulticommerce-core' ); ?></h2>
-                <p><?php esc_html_e( 'Enter your bank account details for customers who choose to pay via bank wire transfer. These details will be shown on the order confirmation page.', 'ulticommerce-core' ); ?></p>
+                <h2 style="margin-top:24px;"><?php esc_html_e( 'Bank Wire Details', 'ulticommerce' ); ?></h2>
+                <p><?php esc_html_e( 'Enter your bank account details for customers who choose to pay via bank wire transfer. These details will be shown on the order confirmation page.', 'ulticommerce' ); ?></p>
                 <table class="form-table">
                     <tr>
-                        <th scope="row"><label for="bank_account_holder"><?php esc_html_e( "Account Holder's Name", 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_account_holder"><?php esc_html_e( "Account Holder's Name", 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[account_holder]" id="bank_account_holder" value="<?php echo esc_attr( $bank['account_holder'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_account_number"><?php esc_html_e( 'Account Number', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_account_number"><?php esc_html_e( 'Account Number', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[account_number]" id="bank_account_number" value="<?php echo esc_attr( $bank['account_number'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_name"><?php esc_html_e( 'Bank Name', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_name"><?php esc_html_e( 'Bank Name', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[bank_name]" id="bank_name" value="<?php echo esc_attr( $bank['bank_name'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_branch"><?php esc_html_e( 'Branch Number', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_branch"><?php esc_html_e( 'Branch Number', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[branch]" id="bank_branch" value="<?php echo esc_attr( $bank['branch'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_country"><?php esc_html_e( 'Country', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_country"><?php esc_html_e( 'Country', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[country]" id="bank_country" value="<?php echo esc_attr( $bank['country'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_swift"><?php esc_html_e( 'SWIFT / BIC Code', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_swift"><?php esc_html_e( 'SWIFT / BIC Code', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[swift]" id="bank_swift" value="<?php echo esc_attr( $bank['swift'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_ifsc"><?php esc_html_e( 'IFSC Code', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_ifsc"><?php esc_html_e( 'IFSC Code', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[ifsc]" id="bank_ifsc" value="<?php echo esc_attr( $bank['ifsc'] ?? '' ); ?>" class="regular-text"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="bank_iban"><?php esc_html_e( 'IBAN', 'ulticommerce-core' ); ?></label></th>
+                        <th scope="row"><label for="bank_iban"><?php esc_html_e( 'IBAN', 'ulticommerce' ); ?></label></th>
                         <td><input type="text" name="ulti_bank_wire_details[iban]" id="bank_iban" value="<?php echo esc_attr( $bank['iban'] ?? '' ); ?>" class="regular-text" style="max-width:400px;"></td>
                     </tr>
                 </table>

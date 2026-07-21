@@ -118,23 +118,23 @@ class UltiCommerce_Order_Statuses {
         <select id="ulti-order-status-select" name="_order_status" class="widefat" disabled>
             <option value="<?php echo esc_attr( $current ); ?>" selected><?php echo esc_html( self::get_label( $current ) ); ?></option>
         </select>
-        <p style="color:#999;font-size:12px;margin:4px 0 0;"><?php esc_html_e( 'Final status — cannot be changed.', 'ulticommerce-core' ); ?></p>
+        <p style="color:#999;font-size:12px;margin:4px 0 0;"><?php esc_html_e( 'Final status — cannot be changed.', 'ulticommerce' ); ?></p>
         <?php else : ?>
         <select id="ulti-order-status-select" name="_order_status" class="widefat">
             <?php foreach ( self::get_statuses() as $slug => $label ) :
                 $disabled = ! in_array( $slug, $allowed, true ) && $slug !== $current ? 'disabled' : '';
             ?>
                 <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $current, $slug ); ?> <?php echo esc_attr( $disabled ); ?>>
-                    <?php echo esc_html( $label ); ?><?php echo $disabled ? ' — ' . esc_html__( 'not allowed', 'ulticommerce-core' ) : ''; ?>
+                    <?php echo esc_html( $label ); ?><?php echo $disabled ? ' — ' . esc_html__( 'not allowed', 'ulticommerce' ) : ''; ?>
                 </option>
             <?php endforeach; ?>
         </select>
         <button type="button" class="button" id="ulti-order-status-update" style="margin-top:8px;"
                 data-post-id="<?php echo esc_attr( $post->ID ); ?>">
-            <?php esc_html_e( 'Update Status', 'ulticommerce-core' ); ?>
+            <?php esc_html_e( 'Update Status', 'ulticommerce' ); ?>
         </button>
         <span class="spinner" style="float:none;margin-top:8px;"></span>
-        <p style="color:#999;font-size:11px;margin:4px 0 0;"><?php esc_html_e( 'Only allowed transitions are shown as active.', 'ulticommerce-core' ); ?></p>
+        <p style="color:#999;font-size:11px;margin:4px 0 0;"><?php esc_html_e( 'Only allowed transitions are shown as active.', 'ulticommerce' ); ?></p>
         <?php wp_enqueue_script( 'ulticommerce-admin' ); ?>
         <?php wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
@@ -154,7 +154,7 @@ jQuery(function($) {
             if (resp.success) {
                 location.reload();
             } else {
-                alert(resp.data && resp.data.message ? resp.data.message : "' . esc_js( __( 'Error updating status.', 'ulticommerce-core' ) ) . '");
+                alert(resp.data && resp.data.message ? resp.data.message : "' . esc_js( __( 'Error updating status.', 'ulticommerce' ) ) . '");
             }
         });
     });
@@ -184,7 +184,7 @@ jQuery(function($) {
         if ( ! self::can_transition( $old_status, $status ) ) {
             wp_send_json_error( [ 'message' => sprintf(
                 /* translators: %1$s: old status label, %2$s: new status label */
-                esc_html__( 'Cannot change from "%1$s" to "%2$s".', 'ulticommerce-core' ),
+                esc_html__( 'Cannot change from "%1$s" to "%2$s".', 'ulticommerce' ),
                 esc_html( self::get_label( $old_status ) ),
                 esc_html( self::get_label( $status ) )
             ) ] );

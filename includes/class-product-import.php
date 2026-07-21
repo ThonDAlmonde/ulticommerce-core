@@ -14,8 +14,8 @@ class UltiCommerce_Product_Import {
     public function add_admin_page() {
         add_submenu_page(
             'edit.php?post_type=product',
-            __( 'Import CSV', 'ulticommerce-core' ),
-            __( 'Import CSV', 'ulticommerce-core' ),
+            __( 'Import CSV', 'ulticommerce' ),
+            __( 'Import CSV', 'ulticommerce' ),
             'manage_options',
             'product-import-csv',
             [ $this, 'render_page' ]
@@ -34,23 +34,23 @@ class UltiCommerce_Product_Import {
         delete_transient( 'ulti_import_results' );
         ?>
         <div class="wrap uti-import-wrap">
-            <h1><?php esc_html_e( 'Import Products from CSV', 'ulticommerce-core' ); ?></h1>
+            <h1><?php esc_html_e( 'Import Products from CSV', 'ulticommerce' ); ?></h1>
 
             <?php if ( $results ) : ?>
                 <div class="uti-import-card">
-                    <h2><?php esc_html_e( 'Import Results', 'ulticommerce-core' ); ?></h2>
+                    <h2><?php esc_html_e( 'Import Results', 'ulticommerce' ); ?></h2>
                     <div class="uti-import-stats">
                         <div class="uti-import-stat">
                             <span class="num success"><?php echo intval( $results['success'] ); ?></span>
-                            <span class="label"><?php esc_html_e( 'Imported', 'ulticommerce-core' ); ?></span>
+                            <span class="label"><?php esc_html_e( 'Imported', 'ulticommerce' ); ?></span>
                         </div>
                         <div class="uti-import-stat">
                             <span class="num error"><?php echo intval( $results['error'] ); ?></span>
-                            <span class="label"><?php esc_html_e( 'Failed', 'ulticommerce-core' ); ?></span>
+                            <span class="label"><?php esc_html_e( 'Failed', 'ulticommerce' ); ?></span>
                         </div>
                         <div class="uti-import-stat">
                             <span class="num skipped"><?php echo intval( $results['skipped'] ); ?></span>
-                            <span class="label"><?php esc_html_e( 'Skipped', 'ulticommerce-core' ); ?></span>
+                            <span class="label"><?php esc_html_e( 'Skipped', 'ulticommerce' ); ?></span>
                         </div>
                     </div>
                     <?php if ( ! empty( $results['log'] ) ) : ?>
@@ -66,8 +66,8 @@ class UltiCommerce_Product_Import {
             <?php endif; ?>
 
             <div class="uti-import-card">
-                <h2><?php esc_html_e( 'Upload CSV', 'ulticommerce-core' ); ?></h2>
-                <p><?php esc_html_e( 'Upload a CSV file with product data. Maximum file size: 2MB.', 'ulticommerce-core' ); ?></p>
+                <h2><?php esc_html_e( 'Upload CSV', 'ulticommerce' ); ?></h2>
+                <p><?php esc_html_e( 'Upload a CSV file with product data. Maximum file size: 2MB.', 'ulticommerce' ); ?></p>
                 <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                     <input type="hidden" name="action" value="ulti_import_csv">
                     <?php wp_nonce_field( 'ulti_import_csv', 'ulti_import_nonce' ); ?>
@@ -75,46 +75,46 @@ class UltiCommerce_Product_Import {
                     <p style="margin-bottom:12px;">
                         <label>
                             <input type="checkbox" name="update_existing" value="1">
-                            <?php esc_html_e( 'Update existing products by SKU', 'ulticommerce-core' ); ?>
+                            <?php esc_html_e( 'Update existing products by SKU', 'ulticommerce' ); ?>
                         </label>
                     </p>
-                    <?php submit_button( __( 'Import CSV', 'ulticommerce-core' ), 'primary', 'submit', false ); ?>
+                    <?php submit_button( __( 'Import CSV', 'ulticommerce' ), 'primary', 'submit', false ); ?>
                 </form>
             </div>
 
             <div class="uti-import-card">
-                <h2><?php esc_html_e( 'CSV Format', 'ulticommerce-core' ); ?></h2>
-                <p><?php esc_html_e( 'The CSV file must include a header row. Download the sample file below for the correct format.', 'ulticommerce-core' ); ?></p>
+                <h2><?php esc_html_e( 'CSV Format', 'ulticommerce' ); ?></h2>
+                <p><?php esc_html_e( 'The CSV file must include a header row. Download the sample file below for the correct format.', 'ulticommerce' ); ?></p>
                 <table class="widefat fixed" style="font-size:12px;">
                     <thead><tr>
-                        <th><?php esc_html_e( 'Column', 'ulticommerce-core' ); ?></th>
-                        <th><?php esc_html_e( 'Required', 'ulticommerce-core' ); ?></th>
-                        <th><?php esc_html_e( 'Description', 'ulticommerce-core' ); ?></th>
+                        <th><?php esc_html_e( 'Column', 'ulticommerce' ); ?></th>
+                        <th><?php esc_html_e( 'Required', 'ulticommerce' ); ?></th>
+                        <th><?php esc_html_e( 'Description', 'ulticommerce' ); ?></th>
                     </tr></thead>
                     <tbody>
-                        <tr><td>title</td><td><?php esc_html_e( 'Yes', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Product name', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>content</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Product description', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>excerpt</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Short description', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>sku</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Unique SKU', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>unit_price</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Regular price', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>discount_price</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Sale/discount price', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>quantity</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Stock quantity', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>weight / width / height</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Dimensions', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>enabled</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( '1 or 0 (default 1)', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>slug</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Post slug (auto if empty)', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>featured_image</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Image URL for thumbnail', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>gallery</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Pipe | separated image URLs', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>categories</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Pipe | separated category names (existing or new)', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>brands</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Pipe | separated brand names', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>collections</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Pipe | separated collection names', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>tags</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'Pipe | separated tag names', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>attributes</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'JSON object {attr_slug:"val1,val2"}', 'ulticommerce-core' ); ?></td></tr>
-                        <tr><td>variations</td><td><?php esc_html_e( 'No', 'ulticommerce-core' ); ?></td><td><?php esc_html_e( 'JSON array [{sku,price,quantity,attributes:{}}]', 'ulticommerce-core' ); ?></td></tr>
+                        <tr><td>title</td><td><?php esc_html_e( 'Yes', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Product name', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>content</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Product description', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>excerpt</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Short description', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>sku</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Unique SKU', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>unit_price</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Regular price', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>discount_price</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Sale/discount price', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>quantity</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Stock quantity', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>weight / width / height</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Dimensions', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>enabled</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( '1 or 0 (default 1)', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>slug</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Post slug (auto if empty)', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>featured_image</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Image URL for thumbnail', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>gallery</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Pipe | separated image URLs', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>categories</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Pipe | separated category names (existing or new)', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>brands</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Pipe | separated brand names', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>collections</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Pipe | separated collection names', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>tags</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'Pipe | separated tag names', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>attributes</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'JSON object {attr_slug:"val1,val2"}', 'ulticommerce' ); ?></td></tr>
+                        <tr><td>variations</td><td><?php esc_html_e( 'No', 'ulticommerce' ); ?></td><td><?php esc_html_e( 'JSON array [{sku,price,quantity,attributes:{}}]', 'ulticommerce' ); ?></td></tr>
                     </tbody>
                 </table>
                 <p style="margin-top:12px;">
                     <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ulti_download_sample_csv' ), 'ulti_download_sample' ) ); ?>" class="button">
-                        <?php esc_html_e( 'Download Sample CSV', 'ulticommerce-core' ); ?>
+                        <?php esc_html_e( 'Download Sample CSV', 'ulticommerce' ); ?>
                     </a>
                 </p>
             </div>

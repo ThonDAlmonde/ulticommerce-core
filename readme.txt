@@ -1,4 +1,4 @@
-=== UltiCommerce Core ===
+=== UltiCommerce ===
 Contributors: thondalmonde
 Tags: e-commerce, products, orders, payment, cart
 Requires at least: 6.0
@@ -36,7 +36,7 @@ Major features include:
 
 == Installation ==
 
-1. Upload the `ulticommerce-core` folder to `/wp-content/plugins/`
+1. Upload the `ulticommerce` folder to `/wp-content/plugins/`
 2. Run `composer install` in the plugin directory
 3. Activate the plugin through the WordPress admin
 4. Activate the UltiCommerce theme

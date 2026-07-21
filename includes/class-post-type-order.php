@@ -67,17 +67,17 @@ class UltiCommerce_Order_CPT {
     public function register_post_type() {
         register_post_type( 'order', [
             'labels' => [
-                'name'               => __( 'Orders', 'ulticommerce-core' ),
-                'singular_name'      => __( 'Order', 'ulticommerce-core' ),
-                'add_new'            => __( 'Add Order', 'ulticommerce-core' ),
-                'add_new_item'       => __( 'Add New Order', 'ulticommerce-core' ),
-                'edit_item'          => __( 'Edit Order', 'ulticommerce-core' ),
-                'view_item'          => __( 'View Order', 'ulticommerce-core' ),
-                'search_items'       => __( 'Search Orders', 'ulticommerce-core' ),
-                'not_found'          => __( 'No orders found', 'ulticommerce-core' ),
-                'not_found_in_trash' => __( 'No orders in Trash', 'ulticommerce-core' ),
-                'all_items'          => __( 'All Orders', 'ulticommerce-core' ),
-                'menu_name'          => __( 'Orders', 'ulticommerce-core' ),
+                'name'               => __( 'Orders', 'ulticommerce' ),
+                'singular_name'      => __( 'Order', 'ulticommerce' ),
+                'add_new'            => __( 'Add Order', 'ulticommerce' ),
+                'add_new_item'       => __( 'Add New Order', 'ulticommerce' ),
+                'edit_item'          => __( 'Edit Order', 'ulticommerce' ),
+                'view_item'          => __( 'View Order', 'ulticommerce' ),
+                'search_items'       => __( 'Search Orders', 'ulticommerce' ),
+                'not_found'          => __( 'No orders found', 'ulticommerce' ),
+                'not_found_in_trash' => __( 'No orders in Trash', 'ulticommerce' ),
+                'all_items'          => __( 'All Orders', 'ulticommerce' ),
+                'menu_name'          => __( 'Orders', 'ulticommerce' ),
             ],
             'public'              => false,
             'publicly_queryable'  => true,
@@ -98,13 +98,13 @@ class UltiCommerce_Order_CPT {
     public function custom_columns( $columns ) {
         return [
             'cb'          => '<input type="checkbox">',
-            'order_num'   => esc_html__( 'Order', 'ulticommerce-core' ),
-            'customer'    => esc_html__( 'Customer', 'ulticommerce-core' ),
-            'payment'     => esc_html__( 'Payment', 'ulticommerce-core' ),
-            'shipping'    => esc_html__( 'Shipping', 'ulticommerce-core' ),
-            'total'       => esc_html__( 'Total', 'ulticommerce-core' ),
-            'status'      => esc_html__( 'Status', 'ulticommerce-core' ),
-            'date'        => esc_html__( 'Date', 'ulticommerce-core' ),
+            'order_num'   => esc_html__( 'Order', 'ulticommerce' ),
+            'customer'    => esc_html__( 'Customer', 'ulticommerce' ),
+            'payment'     => esc_html__( 'Payment', 'ulticommerce' ),
+            'shipping'    => esc_html__( 'Shipping', 'ulticommerce' ),
+            'total'       => esc_html__( 'Total', 'ulticommerce' ),
+            'status'      => esc_html__( 'Status', 'ulticommerce' ),
+            'date'        => esc_html__( 'Date', 'ulticommerce' ),
         ];
     }
 
@@ -146,7 +146,7 @@ class UltiCommerce_Order_CPT {
                 <span class="uti-badge order-status-badge <?php echo esc_attr( $class ); ?> <?php echo $is_final ? 'status-final' : 'status-editable'; ?>"
                       data-post-id="<?php echo esc_attr( $post_id ); ?>"
                       data-nonce="<?php echo esc_attr( wp_create_nonce( 'ulti_update_status_' . $post_id ) ); ?>"
-                      title="<?php echo $is_final ? esc_attr__( 'Final status', 'ulticommerce-core' ) : esc_attr__( 'Click to change', 'ulticommerce-core' ); ?>"
+                      title="<?php echo $is_final ? esc_attr__( 'Final status', 'ulticommerce' ) : esc_attr__( 'Click to change', 'ulticommerce' ); ?>"
                       style="cursor:<?php echo $is_final ? 'default' : 'pointer'; ?>;">
                     <?php echo esc_html( UltiCommerce_Order_Statuses::get_label( $status ) ); ?>
                 </span>
@@ -168,13 +168,13 @@ class UltiCommerce_Order_CPT {
 
     public function row_actions( $actions, $post ) {
         if ( $post->post_type !== 'order' ) return $actions;
-        $actions['invoice'] = '<a href="' . esc_url( wp_nonce_url( admin_url( 'admin.php?action=ulti_print_invoice&post=' . $post->ID ), 'print_invoice_' . $post->ID ) ) . '" target="_blank">' . esc_html__( 'Invoice', 'ulticommerce-core' ) . '</a>';
+        $actions['invoice'] = '<a href="' . esc_url( wp_nonce_url( admin_url( 'admin.php?action=ulti_print_invoice&post=' . $post->ID ), 'print_invoice_' . $post->ID ) ) . '" target="_blank">' . esc_html__( 'Invoice', 'ulticommerce' ) . '</a>';
         $order_num = get_post_meta( $post->ID, '_order_number', true );
         if ( $order_num ) {
             $pdf_dir = wp_upload_dir()['basedir'] . '/invoices/INV-' . $order_num . '.pdf';
             if ( file_exists( $pdf_dir ) ) {
                 $pdf_url = wp_upload_dir()['baseurl'] . '/invoices/INV-' . $order_num . '.pdf';
-                $actions['invoice_pdf'] = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" download>' . esc_html__( 'PDF Invoice', 'ulticommerce-core' ) . '</a>';
+                $actions['invoice_pdf'] = '<a href="' . esc_url( $pdf_url ) . '" target="_blank" download>' . esc_html__( 'PDF Invoice', 'ulticommerce' ) . '</a>';
             }
         }
 
@@ -195,20 +195,20 @@ class UltiCommerce_Order_CPT {
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
         ?>
         <select name="order_status_filter">
-            <option value=""><?php esc_html_e( 'All statuses', 'ulticommerce-core' ); ?></option>
+            <option value=""><?php esc_html_e( 'All statuses', 'ulticommerce' ); ?></option>
             <?php foreach ( UltiCommerce_Order_Statuses::get_statuses() as $slug => $label ) : ?>
                 <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $status, $slug ); ?>><?php echo esc_html( $label ); ?></option>
             <?php endforeach; ?>
         </select>
         <select name="order_date_filter">
-            <option value=""><?php esc_html_e( 'All dates', 'ulticommerce-core' ); ?></option>
-            <option value="today" <?php selected( $date, 'today' ); ?>><?php esc_html_e( 'Today', 'ulticommerce-core' ); ?></option>
-            <option value="this_week" <?php selected( $date, 'this_week' ); ?>><?php esc_html_e( 'This week', 'ulticommerce-core' ); ?></option>
-            <option value="this_month" <?php selected( $date, 'this_month' ); ?>><?php esc_html_e( 'This month', 'ulticommerce-core' ); ?></option>
-            <option value="last_month" <?php selected( $date, 'last_month' ); ?>><?php esc_html_e( 'Last month', 'ulticommerce-core' ); ?></option>
-            <option value="this_year" <?php selected( $date, 'this_year' ); ?>><?php esc_html_e( 'This year', 'ulticommerce-core' ); ?></option>
+            <option value=""><?php esc_html_e( 'All dates', 'ulticommerce' ); ?></option>
+            <option value="today" <?php selected( $date, 'today' ); ?>><?php esc_html_e( 'Today', 'ulticommerce' ); ?></option>
+            <option value="this_week" <?php selected( $date, 'this_week' ); ?>><?php esc_html_e( 'This week', 'ulticommerce' ); ?></option>
+            <option value="this_month" <?php selected( $date, 'this_month' ); ?>><?php esc_html_e( 'This month', 'ulticommerce' ); ?></option>
+            <option value="last_month" <?php selected( $date, 'last_month' ); ?>><?php esc_html_e( 'Last month', 'ulticommerce' ); ?></option>
+            <option value="this_year" <?php selected( $date, 'this_year' ); ?>><?php esc_html_e( 'This year', 'ulticommerce' ); ?></option>
         </select>
-        <input type="text" name="order_number_search" placeholder="<?php esc_attr_e( 'Search order #', 'ulticommerce-core' ); ?>" value="<?php echo esc_attr( $search ); ?>" style="width:140px;">
+        <input type="text" name="order_number_search" placeholder="<?php esc_attr_e( 'Search order #', 'ulticommerce' ); ?>" value="<?php echo esc_attr( $search ); ?>" style="width:140px;">
         <?php
     }
 
@@ -262,10 +262,10 @@ class UltiCommerce_Order_CPT {
     }
 
     public function add_meta_boxes() {
-        add_meta_box( 'order_status_box', esc_html__( 'Order Status', 'ulticommerce-core' ), [ $this, 'render_status_box' ], 'order', 'side', 'high' );
-        add_meta_box( 'order_details', esc_html__( 'Order Details', 'ulticommerce-core' ), [ $this, 'render_meta_box' ], 'order', 'normal', 'high' );
-        add_meta_box( 'order_delivery', esc_html__( 'Delivery & Tracking', 'ulticommerce-core' ), [ $this, 'render_delivery_box' ], 'order', 'side', 'high' );
-        add_meta_box( 'order_notes', esc_html__( 'Order Notes', 'ulticommerce-core' ), [ $this, 'render_notes_box' ], 'order', 'normal' );
+        add_meta_box( 'order_status_box', esc_html__( 'Order Status', 'ulticommerce' ), [ $this, 'render_status_box' ], 'order', 'side', 'high' );
+        add_meta_box( 'order_details', esc_html__( 'Order Details', 'ulticommerce' ), [ $this, 'render_meta_box' ], 'order', 'normal', 'high' );
+        add_meta_box( 'order_delivery', esc_html__( 'Delivery & Tracking', 'ulticommerce' ), [ $this, 'render_delivery_box' ], 'order', 'side', 'high' );
+        add_meta_box( 'order_notes', esc_html__( 'Order Notes', 'ulticommerce' ), [ $this, 'render_notes_box' ], 'order', 'normal' );
     }
 
     public function render_status_box( $post ) {
@@ -279,7 +279,7 @@ class UltiCommerce_Order_CPT {
     private function render_status_timeline( $order_id ) {
         $log = get_post_meta( $order_id, '_order_status_log', true ) ?: [];
         if ( empty( $log ) ) return;
-        echo '<h4 style="margin:16px 0 8px;font-size:12px;">' . esc_html__( 'Timeline', 'ulticommerce-core' ) . '</h4>';
+        echo '<h4 style="margin:16px 0 8px;font-size:12px;">' . esc_html__( 'Timeline', 'ulticommerce' ) . '</h4>';
         echo '<ul style="margin:0;padding:0;list-style:none;font-size:12px;">';
         $recent = array_slice( array_reverse( $log ), 0, 5 );
         foreach ( $recent as $entry ) {
@@ -296,15 +296,15 @@ class UltiCommerce_Order_CPT {
         $shipping_cost = get_post_meta( $post->ID, '_order_shipping_cost', true );
         ?>
         <table class="form-table">
-            <tr><th><?php esc_html_e( 'Order Number', 'ulticommerce-core' ); ?></th><td><strong>#<?php echo esc_html( get_post_meta( $post->ID, '_order_number', true ) ); ?></strong></td></tr>
-            <tr><th><?php esc_html_e( 'Status', 'ulticommerce-core' ); ?></th><td><?php
+            <tr><th><?php esc_html_e( 'Order Number', 'ulticommerce' ); ?></th><td><strong>#<?php echo esc_html( get_post_meta( $post->ID, '_order_number', true ) ); ?></strong></td></tr>
+            <tr><th><?php esc_html_e( 'Status', 'ulticommerce' ); ?></th><td><?php
                 $s = get_post_meta( $post->ID, '_order_status', true ) ?: 'new';
                 $c = UltiCommerce_Order_Statuses::get_badge_class( $s );
                 echo '<span class="uti-badge ' . esc_attr( $c ) . '">' . esc_html( UltiCommerce_Order_Statuses::get_label( $s ) ) . '</span>';
             ?></td></tr>
-            <tr><th><?php esc_html_e( 'Date', 'ulticommerce-core' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_date', true ) ?: '—' ); ?></td></tr>
-            <tr><th><?php esc_html_e( 'Customer', 'ulticommerce-core' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_first_name', true ) . ' ' . get_post_meta( $post->ID, '_order_last_name', true ) ); ?><br><?php echo esc_html( get_post_meta( $post->ID, '_order_email', true ) ); ?><?php echo get_post_meta( $post->ID, '_order_phone', true ) ? ' — ' . esc_html( get_post_meta( $post->ID, '_order_phone', true ) ) : ''; ?></td></tr>
-            <tr><th><?php esc_html_e( 'Shipping Address', 'ulticommerce-core' ); ?></th><td><?php
+            <tr><th><?php esc_html_e( 'Date', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_date', true ) ?: '—' ); ?></td></tr>
+            <tr><th><?php esc_html_e( 'Customer', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_first_name', true ) . ' ' . get_post_meta( $post->ID, '_order_last_name', true ) ); ?><br><?php echo esc_html( get_post_meta( $post->ID, '_order_email', true ) ); ?><?php echo get_post_meta( $post->ID, '_order_phone', true ) ? ' — ' . esc_html( get_post_meta( $post->ID, '_order_phone', true ) ) : ''; ?></td></tr>
+            <tr><th><?php esc_html_e( 'Shipping Address', 'ulticommerce' ); ?></th><td><?php
                 $addr = get_post_meta( $post->ID, '_order_address', true );
                 $city = get_post_meta( $post->ID, '_order_city', true );
                 $state = get_post_meta( $post->ID, '_order_state', true );
@@ -312,33 +312,33 @@ class UltiCommerce_Order_CPT {
                 $country = get_post_meta( $post->ID, '_order_country', true );
                 echo esc_html( implode( ', ', array_filter( [ $addr, $city, $state, $zip, $country ] ) ) ?: '—' );
             ?></td></tr>
-            <tr><th><?php esc_html_e( 'Shipping Method', 'ulticommerce-core' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_shipping_method', true ) ?: '—' ); ?><?php echo $shipping_cost ? ' (' . esc_html( ulti_format_price( $shipping_cost ) ) . ')' : ''; ?></td></tr>
-            <tr><th><?php esc_html_e( 'Payment Method', 'ulticommerce-core' ); ?></th><td><?php
+            <tr><th><?php esc_html_e( 'Shipping Method', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_shipping_method', true ) ?: '—' ); ?><?php echo $shipping_cost ? ' (' . esc_html( ulti_format_price( $shipping_cost ) ) . ')' : ''; ?></td></tr>
+            <tr><th><?php esc_html_e( 'Payment Method', 'ulticommerce' ); ?></th><td><?php
                 echo esc_html( get_post_meta( $post->ID, '_order_payment_title', true ) ?: get_post_meta( $post->ID, '_order_payment_method', true ) ?: '—' );
                 $txn = get_post_meta( $post->ID, '_order_transaction_id', true );
                 echo $txn ? '<br>ID: ' . esc_html( $txn ) : '';
             ?></td></tr>
-            <tr><th><?php esc_html_e( 'Payment', 'ulticommerce-core' ); ?></th><td><?php
+            <tr><th><?php esc_html_e( 'Payment', 'ulticommerce' ); ?></th><td><?php
                 $sub = get_post_meta( $post->ID, '_order_subtotal', true );
                 $discount = get_post_meta( $post->ID, '_order_discount', true );
                 $coupon = get_post_meta( $post->ID, '_order_coupon', true );
                 $total = get_post_meta( $post->ID, '_order_total', true );
-                echo esc_html__( 'Subtotal:', 'ulticommerce-core' ) . ' ' . esc_html( ulti_format_price( $sub ?: 0 ) ) . '<br>';
+                echo esc_html__( 'Subtotal:', 'ulticommerce' ) . ' ' . esc_html( ulti_format_price( $sub ?: 0 ) ) . '<br>';
                 if ( $discount > 0 ) {
-                    echo esc_html__( 'Discount:', 'ulticommerce-core' ) . ' -' . esc_html( ulti_format_price( $discount ) );
+                    echo esc_html__( 'Discount:', 'ulticommerce' ) . ' -' . esc_html( ulti_format_price( $discount ) );
                     if ( $coupon ) echo ' (' . esc_html( $coupon ) . ')';
                     echo '<br>';
                 }
-                echo esc_html__( 'Shipping:', 'ulticommerce-core' ) . ' ' . ( $shipping_cost > 0 ? esc_html( ulti_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce-core' ) ) . '<br>';
-                echo '<strong>' . esc_html__( 'Total:', 'ulticommerce-core' ) . ' ' . esc_html( ulti_format_price( $total ?: 0 ) ) . '</strong>';
+                echo esc_html__( 'Shipping:', 'ulticommerce' ) . ' ' . ( $shipping_cost > 0 ? esc_html( ulti_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce' ) ) . '<br>';
+                echo '<strong>' . esc_html__( 'Total:', 'ulticommerce' ) . ' ' . esc_html( ulti_format_price( $total ?: 0 ) ) . '</strong>';
             ?></td></tr>
         </table>
 
         <?php
         $items = get_post_meta( $post->ID, '_order_items', true ) ?: [];
         if ( ! empty( $items ) ) {
-            echo '<h3 style="margin-top:20px;">' . esc_html__( 'Order Items', 'ulticommerce-core' ) . '</h3>';
-            echo '<table class="widefat fixed"><thead><tr><th>' . esc_html__( 'Product', 'ulticommerce-core' ) . '</th><th>' . esc_html__( 'Price', 'ulticommerce-core' ) . '</th><th>' . esc_html__( 'Qty', 'ulticommerce-core' ) . '</th><th>' . esc_html__( 'Total', 'ulticommerce-core' ) . '</th></tr></thead><tbody>';
+            echo '<h3 style="margin-top:20px;">' . esc_html__( 'Order Items', 'ulticommerce' ) . '</h3>';
+            echo '<table class="widefat fixed"><thead><tr><th>' . esc_html__( 'Product', 'ulticommerce' ) . '</th><th>' . esc_html__( 'Price', 'ulticommerce' ) . '</th><th>' . esc_html__( 'Qty', 'ulticommerce' ) . '</th><th>' . esc_html__( 'Total', 'ulticommerce' ) . '</th></tr></thead><tbody>';
             foreach ( $items as $item ) {
                 echo '<tr><td>' . esc_html( $item['name'] ?? '' ) . '</td><td>' . esc_html( ulti_format_price( $item['price'] ?? 0 ) ) . '</td><td>' . esc_html( $item['quantity'] ?? 0 ) . '</td><td>' . esc_html( ulti_format_price( ( $item['price'] ?? 0 ) * ( $item['quantity'] ?? 0 ) ) ) . '</td></tr>';
             }
@@ -347,7 +347,7 @@ class UltiCommerce_Order_CPT {
 
         $paid_date = get_post_meta( $post->ID, '_order_paid_date', true );
         if ( $paid_date ) {
-            echo '<p style="margin-top:12px;color:#999;font-size:12px;">' . esc_html__( 'Paid:', 'ulticommerce-core' ) . ' ' . esc_html( $paid_date ) . '</p>';
+            echo '<p style="margin-top:12px;color:#999;font-size:12px;">' . esc_html__( 'Paid:', 'ulticommerce' ) . ' ' . esc_html( $paid_date ) . '</p>';
         }
     }
 
@@ -365,8 +365,8 @@ class UltiCommerce_Order_CPT {
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <textarea id="order-note-input" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px;" rows="2" placeholder="<?php esc_attr_e( 'Add a note...', 'ulticommerce-core' ); ?>"></textarea>
-            <button type="button" class="button" id="add-order-note" style="margin-top:4px;" data-post-id="<?php echo esc_attr( $post->ID ); ?>"><?php esc_html_e( 'Add Note', 'ulticommerce-core' ); ?></button>
+            <textarea id="order-note-input" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px;" rows="2" placeholder="<?php esc_attr_e( 'Add a note...', 'ulticommerce' ); ?>"></textarea>
+            <button type="button" class="button" id="add-order-note" style="margin-top:4px;" data-post-id="<?php echo esc_attr( $post->ID ); ?>"><?php esc_html_e( 'Add Note', 'ulticommerce' ); ?></button>
             <span class="spinner" style="float:none;margin-top:4px;"></span>
         </div>
         <?php
@@ -400,25 +400,25 @@ jQuery(function($) {
         ?>
         <table class="form-table" style="margin-top:0;">
             <tr>
-                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Tracking #', 'ulticommerce-core' ); ?></th>
+                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Tracking #', 'ulticommerce' ); ?></th>
                 <td style="padding:4px 0;">
                     <input type="text" name="_order_tracking_number" value="<?php echo esc_attr( $tracking ); ?>" class="widefat" <?php disabled( $is_final ); ?>>
                 </td>
             </tr>
             <tr>
-                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Courier', 'ulticommerce-core' ); ?></th>
+                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Courier', 'ulticommerce' ); ?></th>
                 <td style="padding:4px 0;">
                     <input type="text" name="_order_courier_name" value="<?php echo esc_attr( $courier ); ?>" class="widefat" <?php disabled( $is_final ); ?>>
                 </td>
             </tr>
             <tr>
-                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Weight (kg)', 'ulticommerce-core' ); ?></th>
+                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Weight (kg)', 'ulticommerce' ); ?></th>
                 <td style="padding:4px 0;">
                     <input type="text" name="_order_packing_weight" value="<?php echo esc_attr( $weight ); ?>" class="widefat" <?php disabled( $is_final ); ?>>
                 </td>
             </tr>
             <tr>
-                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Packing Note', 'ulticommerce-core' ); ?></th>
+                <th style="padding:4px 0;font-size:12px;"><?php esc_html_e( 'Packing Note', 'ulticommerce' ); ?></th>
                 <td style="padding:4px 0;">
                     <textarea name="_order_packing_note" class="widefat" rows="2" <?php disabled( $is_final ); ?>><?php echo esc_textarea( $note ); ?></textarea>
                 </td>
@@ -426,7 +426,7 @@ jQuery(function($) {
         </table>
         <?php if ( $tracking || $courier ) : ?>
         <p style="margin:8px 0 0;font-size:11px;color:#999;">
-            <?php esc_html_e( 'Tracking info will be visible to the customer on the order page.', 'ulticommerce-core' ); ?>
+            <?php esc_html_e( 'Tracking info will be visible to the customer on the order page.', 'ulticommerce' ); ?>
         </p>
         <?php endif; ?>
         <?php
@@ -492,7 +492,7 @@ jQuery(function($) {
     public function bulk_status_actions( $actions ) {
         foreach ( UltiCommerce_Order_Statuses::get_statuses() as $slug => $label ) {
             /* translators: %s: order status label */
-            $actions[ 'set_status_' . $slug ] = sprintf( esc_html__( 'Set status to %s', 'ulticommerce-core' ), esc_html( $label ) );
+            $actions[ 'set_status_' . $slug ] = sprintf( esc_html__( 'Set status to %s', 'ulticommerce' ), esc_html( $label ) );
         }
         return $actions;
     }
@@ -531,8 +531,8 @@ jQuery(function($) {
             $skipped   = intval( wp_unslash( $_GET['bulk_skipped'] ?? 0 ) );
             echo '<div class="notice notice-success is-dismissible"><p>' .
                 /* translators: %d: number of orders updated */
-                esc_html( sprintf( __( 'Updated %d order(s).', 'ulticommerce-core' ), $processed ) ) .
-                ( $skipped ? ' ' . /* translators: %d: number of orders skipped */ esc_html( sprintf( __( '%d skipped (invalid transition).', 'ulticommerce-core' ), $skipped ) ) : '' ) .
+                esc_html( sprintf( __( 'Updated %d order(s).', 'ulticommerce' ), $processed ) ) .
+                ( $skipped ? ' ' . /* translators: %d: number of orders skipped */ esc_html( sprintf( __( '%d skipped (invalid transition).', 'ulticommerce' ), $skipped ) ) : '' ) .
                 // phpcs:enable WordPress.Security.NonceVerification.Recommended
                 '</p></div>';
         }
@@ -588,7 +588,7 @@ jQuery(function($) {
         if ( ! $post_id || get_post_type( $post_id ) !== 'order' ) return;
         $order_customer_id = (int) get_post_meta( $post_id, '_order_customer_id', true );
         if ( $order_customer_id && $order_customer_id !== get_current_user_id() && ! current_user_can( 'edit_post', $post_id ) ) {
-            wp_die( esc_html__( 'Unauthorized.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'Unauthorized.', 'ulticommerce' ) );
         }
         $this->stream_invoice_pdf( $post_id );
     }
@@ -596,10 +596,10 @@ jQuery(function($) {
     public function print_invoice() {
         $post_id = intval( $_GET['post'] ?? 0 );
         if ( ! $post_id || get_post_type( $post_id ) !== 'order' ) {
-            wp_die( esc_html__( 'Invalid order.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'Invalid order.', 'ulticommerce' ) );
         }
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
-            wp_die( esc_html__( 'Unauthorized.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'Unauthorized.', 'ulticommerce' ) );
         }
         check_admin_referer( 'print_invoice_' . $post_id );
         $this->stream_invoice_pdf( $post_id );
@@ -608,7 +608,7 @@ jQuery(function($) {
     private function stream_invoice_pdf( $post_id ) {
         $file = $this->generate_invoice_pdf( $post_id );
         if ( ! $file || ! file_exists( $file ) ) {
-            wp_die( esc_html__( 'Could not generate invoice PDF.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'Could not generate invoice PDF.', 'ulticommerce' ) );
         }
         $order_num = get_post_meta( $post_id, '_order_number', true ) ?: $post_id;
         $filename  = 'INV-' . sanitize_file_name( $order_num ) . '.pdf';
@@ -676,7 +676,7 @@ jQuery(function($) {
         ob_start();
         ?>
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title><?php /* translators: %s: order number */ printf( esc_html__( 'Invoice #%s', 'ulticommerce-core' ), esc_html( $order_num ) ); ?></title>
+<html><head><meta charset="utf-8"><title><?php /* translators: %s: order number */ printf( esc_html__( 'Invoice #%s', 'ulticommerce' ), esc_html( $order_num ) ); ?></title>
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #333; margin: 40px; }
 .invoice { max-width: 700px; margin: 0 auto; }
@@ -694,20 +694,20 @@ td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
 </head><body>
 <div class="invoice">
 <div class="header">
-<div><h1><?php esc_html_e( 'INVOICE', 'ulticommerce-core' ); ?></h1></div>
+<div><h1><?php esc_html_e( 'INVOICE', 'ulticommerce' ); ?></h1></div>
 <div class="meta">
-<div><strong><?php /* translators: %s: order number */ printf( esc_html__( 'Order #%s', 'ulticommerce-core' ), esc_html( $order_num ) ); ?></strong></div>
+<div><strong><?php /* translators: %s: order number */ printf( esc_html__( 'Order #%s', 'ulticommerce' ), esc_html( $order_num ) ); ?></strong></div>
 <div><?php echo esc_html( $date ? gmdate( 'M j, Y', strtotime( $date ) ) : '' ); ?></div>
 </div></div>
 
 <div class="address">
-<h3><?php esc_html_e( 'Bill To', 'ulticommerce-core' ); ?></h3>
+<h3><?php esc_html_e( 'Bill To', 'ulticommerce' ); ?></h3>
 <p><strong><?php echo esc_html( "$first $last" ); ?></strong></p>
 <p><?php echo esc_html( $email ); ?></p>
 <p><?php echo esc_html( implode( ', ', array_filter( [ $address, $city, $state, $zip, $country ] ) ) ); ?></p>
 </div>
 
-<table><thead><tr><th><?php esc_html_e( 'Product', 'ulticommerce-core' ); ?></th><th><?php esc_html_e( 'Price', 'ulticommerce-core' ); ?></th><th><?php esc_html_e( 'Qty', 'ulticommerce-core' ); ?></th><th><?php esc_html_e( 'Total', 'ulticommerce-core' ); ?></th></tr></thead>
+<table><thead><tr><th><?php esc_html_e( 'Product', 'ulticommerce' ); ?></th><th><?php esc_html_e( 'Price', 'ulticommerce' ); ?></th><th><?php esc_html_e( 'Qty', 'ulticommerce' ); ?></th><th><?php esc_html_e( 'Total', 'ulticommerce' ); ?></th></tr></thead>
 <tbody>
 <?php foreach ( $items as $item ) : ?>
 <tr><td><?php echo esc_html( $item['name'] ?? '' ); ?></td><td><?php echo esc_html( ulti_format_price( $item['price'] ?? 0 ) ); ?></td><td><?php echo esc_html( $item['quantity'] ?? 0 ); ?></td><td><?php echo esc_html( ulti_format_price( ( $item['price'] ?? 0 ) * ( $item['quantity'] ?? 0 ) ) ); ?></td></tr>
@@ -715,14 +715,14 @@ td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
 </tbody></table>
 
 <div class="summary">
-<div><?php esc_html_e( 'Subtotal:', 'ulticommerce-core' ); ?> <?php echo esc_html( ulti_format_price( $subtotal ?: 0 ) ); ?></div>
-<?php if ( $discount > 0 ) : ?><div><?php esc_html_e( 'Discount:', 'ulticommerce-core' ); ?> -<?php echo esc_html( ulti_format_price( $discount ) ); ?></div><?php endif; ?>
-<div><?php esc_html_e( 'Shipping:', 'ulticommerce-core' ); ?> <?php echo $shipping_cost > 0 ? esc_html( ulti_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce-core' ); ?></div>
-<div class="total"><?php esc_html_e( 'Total:', 'ulticommerce-core' ); ?> <?php echo esc_html( ulti_format_price( $total ?: 0 ) ); ?></div>
+<div><?php esc_html_e( 'Subtotal:', 'ulticommerce' ); ?> <?php echo esc_html( ulti_format_price( $subtotal ?: 0 ) ); ?></div>
+<?php if ( $discount > 0 ) : ?><div><?php esc_html_e( 'Discount:', 'ulticommerce' ); ?> -<?php echo esc_html( ulti_format_price( $discount ) ); ?></div><?php endif; ?>
+<div><?php esc_html_e( 'Shipping:', 'ulticommerce' ); ?> <?php echo $shipping_cost > 0 ? esc_html( ulti_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce' ); ?></div>
+<div class="total"><?php esc_html_e( 'Total:', 'ulticommerce' ); ?> <?php echo esc_html( ulti_format_price( $total ?: 0 ) ); ?></div>
 </div>
 
 <div class="footer">
-<p><?php esc_html_e( 'Thank you for your business!', 'ulticommerce-core' ); ?></p>
+<p><?php esc_html_e( 'Thank you for your business!', 'ulticommerce' ); ?></p>
 </div>
 </div>
 </body></html>
@@ -734,7 +734,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
         if ( get_post_type( $post_id ) !== 'order' ) return;
         $status = get_post_meta( $post_id, '_order_status', true ) ?: 'new';
         if ( UltiCommerce_Order_Statuses::is_final_status( $status ) ) {
-            wp_die( esc_html__( 'This order has a final status (Canceled, Refunded, or Delivered) and cannot be moved to Trash.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'This order has a final status (Canceled, Refunded, or Delivered) and cannot be moved to Trash.', 'ulticommerce' ) );
         }
     }
 

@@ -66,8 +66,8 @@ class UltiCommerce_Shipping {
     public function add_admin_menu() {
         add_submenu_page(
             'edit.php?post_type=product',
-            __( 'Shipping', 'ulticommerce-core' ),
-            __( 'Shipping', 'ulticommerce-core' ),
+            __( 'Shipping', 'ulticommerce' ),
+            __( 'Shipping', 'ulticommerce' ),
             'manage_options',
             'ulti-shipping',
             [ $this, 'render_page' ]
@@ -177,34 +177,34 @@ jQuery(function($) {
         $rates = get_option( 'ulti_shipping_rates', [] );
         ?>
         <div class="wrap ulti-shipping-wrap">
-            <h1><?php esc_html_e( 'Shipping Settings', 'ulticommerce-core' ); ?></h1>
+            <h1><?php esc_html_e( 'Shipping Settings', 'ulticommerce' ); ?></h1>
 
             <form method="post" action="options.php">
                 <?php settings_fields( 'ulti_shipping_settings' ); ?>
 
                 <div class="ulti-ship-section">
-                    <h2><?php esc_html_e( 'Warehouse Address', 'ulticommerce-core' ); ?></h2>
+                    <h2><?php esc_html_e( 'Warehouse Address', 'ulticommerce' ); ?></h2>
                     <div class="ulti-field-row">
                         <div>
-                            <label><?php esc_html_e( 'Address', 'ulticommerce-core' ); ?></label>
+                            <label><?php esc_html_e( 'Address', 'ulticommerce' ); ?></label>
                             <input type="text" name="ulti_shipping_warehouse[address]" value="<?php echo esc_attr( $warehouse['address'] ?? '' ); ?>" class="regular-text">
                         </div>
                         <div>
-                            <label><?php esc_html_e( 'City', 'ulticommerce-core' ); ?></label>
+                            <label><?php esc_html_e( 'City', 'ulticommerce' ); ?></label>
                             <input type="text" name="ulti_shipping_warehouse[city]" value="<?php echo esc_attr( $warehouse['city'] ?? '' ); ?>">
                         </div>
                         <div>
-                            <label><?php esc_html_e( 'State', 'ulticommerce-core' ); ?></label>
+                            <label><?php esc_html_e( 'State', 'ulticommerce' ); ?></label>
                             <input type="text" name="ulti_shipping_warehouse[state]" value="<?php echo esc_attr( $warehouse['state'] ?? '' ); ?>">
                         </div>
                     </div>
                     <div class="ulti-field-row">
                         <div>
-                            <label><?php esc_html_e( 'ZIP Code', 'ulticommerce-core' ); ?></label>
+                            <label><?php esc_html_e( 'ZIP Code', 'ulticommerce' ); ?></label>
                             <input type="text" name="ulti_shipping_warehouse[zip]" value="<?php echo esc_attr( $warehouse['zip'] ?? '' ); ?>">
                         </div>
                         <div>
-                            <label><?php esc_html_e( 'Country', 'ulticommerce-core' ); ?></label>
+                            <label><?php esc_html_e( 'Country', 'ulticommerce' ); ?></label>
                             <select name="ulti_shipping_warehouse[country]">
                                 <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                                     <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $warehouse['country'] ?? 'THA', $code ); ?>><?php echo esc_html( $label ); ?></option>
@@ -219,13 +219,13 @@ jQuery(function($) {
                     <h2>
                         <label style="display:flex;align-items:center;gap:8px;">
                             <input type="checkbox" name="ulti_shipping_cross_border" value="1" id="cb-cross-border" <?php checked( $cross_border ); ?>>
-                            <?php esc_html_e( 'Enable Cross Border Shipping', 'ulticommerce-core' ); ?>
+                            <?php esc_html_e( 'Enable Cross Border Shipping', 'ulticommerce' ); ?>
                         </label>
                     </h2>
-                    <p style="font-size:13px;color:#666;"><?php esc_html_e( 'When disabled, shipping is limited to domestic (warehouse country) and customers can only save domestic addresses.', 'ulticommerce-core' ); ?></p>
+                    <p style="font-size:13px;color:#666;"><?php esc_html_e( 'When disabled, shipping is limited to domestic (warehouse country) and customers can only save domestic addresses.', 'ulticommerce' ); ?></p>
 
                     <div class="cross-border-fields" style="<?php echo $cross_border ? '' : 'display:none;'; ?>">
-                        <label style="font-weight:600;display:block;margin-bottom:4px;"><?php esc_html_e( 'Supported Countries', 'ulticommerce-core' ); ?></label>
+                        <label style="font-weight:600;display:block;margin-bottom:4px;"><?php esc_html_e( 'Supported Countries', 'ulticommerce' ); ?></label>
                         <select id="country-multiselect" multiple style="width:100%;height:120px;">
                             <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                                 <option value="<?php echo esc_attr( $code ); ?>" <?php echo in_array( $code, $supported ) ? 'selected' : ''; ?>><?php echo esc_html( $label ); ?></option>
@@ -243,33 +243,33 @@ jQuery(function($) {
                 </div>
 
                 <div class="ulti-ship-section">
-                    <h2><?php esc_html_e( 'Weight Unit', 'ulticommerce-core' ); ?></h2>
+                    <h2><?php esc_html_e( 'Weight Unit', 'ulticommerce' ); ?></h2>
                     <select name="ulti_shipping_weight_unit">
                         <?php foreach ( self::$weight_units as $key => $info ) : ?>
                             <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $weight_unit, $key ); ?>><?php echo esc_html( $info['label'] ); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <p class="description"><?php esc_html_e( 'Unit used for product weight input and shipping rate table.', 'ulticommerce-core' ); ?></p>
+                    <p class="description"><?php esc_html_e( 'Unit used for product weight input and shipping rate table.', 'ulticommerce' ); ?></p>
                 </div>
 
                 <div class="ulti-ship-section">
-                    <h2><?php esc_html_e( 'Shipping Rate Table', 'ulticommerce-core' ); ?></h2>
+                    <h2><?php esc_html_e( 'Shipping Rate Table', 'ulticommerce' ); ?></h2>
                     <p style="font-size:13px;color:#666;">
-                        <?php esc_html_e( 'Define shipping rates. The system matches the first row where weight &le; Max Weight and Post Code matches the destination. Leave Post Code empty to match all.', 'ulticommerce-core' ); ?>
-                        <?php esc_html_e( 'Wildcards: * matches anything, ? matches single char, ranges like 10xxx match 10000-10999.', 'ulticommerce-core' ); ?>
+                        <?php esc_html_e( 'Define shipping rates. The system matches the first row where weight &le; Max Weight and Post Code matches the destination. Leave Post Code empty to match all.', 'ulticommerce' ); ?>
+                        <?php esc_html_e( 'Wildcards: * matches anything, ? matches single char, ranges like 10xxx match 10000-10999.', 'ulticommerce' ); ?>
                     </p>
 
                     <div class="rates-table-wrap">
                         <table class="rates-table">
                             <thead>
                                 <tr>
-                                    <th><?php esc_html_e( 'Provider', 'ulticommerce-core' ); ?></th>
-                                    <th><?php esc_html_e( 'Service Type', 'ulticommerce-core' ); ?></th>
-                                    <th><?php esc_html_e( 'Country', 'ulticommerce-core' ); ?></th>
-                                    <th><?php esc_html_e( 'Min Weight', 'ulticommerce-core' ); ?></th>
-                                    <th><?php esc_html_e( 'Max Weight', 'ulticommerce-core' ); ?></th>
-                                    <th><?php esc_html_e( 'Post Code', 'ulticommerce-core' ); ?></th>
-                                    <th><?php esc_html_e( 'Fee', 'ulticommerce-core' ); ?></th>
+                                    <th><?php esc_html_e( 'Provider', 'ulticommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Service Type', 'ulticommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Country', 'ulticommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Min Weight', 'ulticommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Max Weight', 'ulticommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Post Code', 'ulticommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Fee', 'ulticommerce' ); ?></th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -280,7 +280,7 @@ jQuery(function($) {
                                         <td><input type="text" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][service]" value="<?php echo esc_attr( $row['service'] ); ?>" placeholder="e.g. Standard"></td>
                                         <td>
                                             <select name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][country]" style="width:120px;">
-                                                <option value=""><?php esc_html_e( 'All', 'ulticommerce-core' ); ?></option>
+                                                <option value=""><?php esc_html_e( 'All', 'ulticommerce' ); ?></option>
                                                 <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                                                     <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $row['country'], $code ); ?>><?php echo esc_html( $code ); ?></option>
                                                 <?php endforeach; ?>
@@ -290,30 +290,30 @@ jQuery(function($) {
                                         <td><input type="number" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][max_weight]" value="<?php echo esc_attr( $row['max_weight'] ); ?>" step="0.001" min="0" class="weight-input"></td>
                                         <td><input type="text" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][postcode]" value="<?php echo esc_attr( $row['postcode'] ?? '' ); ?>" placeholder="*" style="width:100px;"></td>
                                         <td><input type="number" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][fee]" value="<?php echo esc_attr( $row['fee'] ); ?>" step="0.01" min="0" class="fee-input"></td>
-                                        <td><span class="remove-row"><?php esc_html_e( 'Remove', 'ulticommerce-core' ); ?></span></td>
+                                        <td><span class="remove-row"><?php esc_html_e( 'Remove', 'ulticommerce' ); ?></span></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
 
-                    <button type="button" class="button add-rate-row" style="margin-top:8px;">+ <?php esc_html_e( 'Add Row', 'ulticommerce-core' ); ?></button>
+                    <button type="button" class="button add-rate-row" style="margin-top:8px;">+ <?php esc_html_e( 'Add Row', 'ulticommerce' ); ?></button>
 
-                    <p><?php submit_button( __( 'Save Shipping Settings', 'ulticommerce-core' ) ); ?></p>
+                    <p><?php submit_button( __( 'Save Shipping Settings', 'ulticommerce' ) ); ?></p>
                 </div>
             </form>
 
             <div class="ulti-ship-section import-section">
-                <h2><?php esc_html_e( 'Import / Export Rate Table', 'ulticommerce-core' ); ?></h2>
-                <p><?php esc_html_e( 'CSV format: provider, service, country, min_weight, max_weight, postcode, fee', 'ulticommerce-core' ); ?></p>
+                <h2><?php esc_html_e( 'Import / Export Rate Table', 'ulticommerce' ); ?></h2>
+                <p><?php esc_html_e( 'CSV format: provider, service, country, min_weight, max_weight, postcode, fee', 'ulticommerce' ); ?></p>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                     <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                         <input type="hidden" name="action" value="ulti_shipping_import_csv">
                         <?php wp_nonce_field( 'ulti_shipping_csv' ); ?>
                         <input type="file" name="shipping_csv" accept=".csv" required>
-                        <button type="submit" class="button button-primary"><?php esc_html_e( 'Import CSV', 'ulticommerce-core' ); ?></button>
+                        <button type="submit" class="button button-primary"><?php esc_html_e( 'Import CSV', 'ulticommerce' ); ?></button>
                     </form>
-                    <a href="<?php echo esc_url( admin_url( 'admin-post.php?action=ulti_shipping_download_csv' ) ); ?>" class="button"><?php esc_html_e( 'Download Template', 'ulticommerce-core' ); ?></a>
+                    <a href="<?php echo esc_url( admin_url( 'admin-post.php?action=ulti_shipping_download_csv' ) ); ?>" class="button"><?php esc_html_e( 'Download Template', 'ulticommerce' ); ?></a>
                 </div>
             </div>
         </div>
@@ -324,7 +324,7 @@ jQuery(function($) {
                 <td><input type="text" name="ulti_shipping_rates[__ROWIDX__][service]" value="" placeholder="e.g. Standard"></td>
                 <td>
                     <select name="ulti_shipping_rates[__ROWIDX__][country]" style="width:120px;">
-                        <option value=""><?php esc_html_e( 'All', 'ulticommerce-core' ); ?></option>
+                        <option value=""><?php esc_html_e( 'All', 'ulticommerce' ); ?></option>
                         <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                             <option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $code ); ?></option>
                         <?php endforeach; ?>
@@ -334,7 +334,7 @@ jQuery(function($) {
                 <td><input type="number" name="ulti_shipping_rates[__ROWIDX__][max_weight]" value="" step="0.001" min="0" class="weight-input"></td>
                 <td><input type="text" name="ulti_shipping_rates[__ROWIDX__][postcode]" value="" placeholder="*" style="width:100px;"></td>
                 <td><input type="number" name="ulti_shipping_rates[__ROWIDX__][fee]" value="" step="0.01" min="0" class="fee-input"></td>
-                <td><span class="remove-row"><?php esc_html_e( 'Remove', 'ulticommerce-core' ); ?></span></td>
+                <td><span class="remove-row"><?php esc_html_e( 'Remove', 'ulticommerce' ); ?></span></td>
             </tr>
         </template>
         <?php
@@ -345,18 +345,18 @@ jQuery(function($) {
         check_admin_referer( 'ulti_shipping_csv' );
 
         if ( empty( $_FILES['shipping_csv']['tmp_name'] ) ) {
-            wp_die( esc_html__( 'No file uploaded.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'No file uploaded.', 'ulticommerce' ) );
         }
 
         $csv_file = sanitize_text_field( wp_unslash( $_FILES['shipping_csv']['tmp_name'] ?? '' ) );
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
         $handle = fopen( $csv_file, 'r' );
-        if ( ! $handle ) wp_die( esc_html__( 'Cannot read file.', 'ulticommerce-core' ) );
+        if ( ! $handle ) wp_die( esc_html__( 'Cannot read file.', 'ulticommerce' ) );
 
         $header = fgetcsv( $handle );
         if ( ! $header ) {
             // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
-            fclose( $handle ); wp_die( esc_html__( 'Empty CSV.', 'ulticommerce-core' ) ); }
+            fclose( $handle ); wp_die( esc_html__( 'Empty CSV.', 'ulticommerce' ) ); }
 
         $header = array_map( 'trim', $header );
         $header = array_map( 'strtolower', $header );
@@ -399,7 +399,7 @@ jQuery(function($) {
         fclose( $handle );
 
         if ( empty( $rates ) ) {
-            wp_die( esc_html__( 'No valid rows found in CSV.', 'ulticommerce-core' ) );
+            wp_die( esc_html__( 'No valid rows found in CSV.', 'ulticommerce' ) );
         }
 
         $existing = get_option( 'ulti_shipping_rates', [] );
@@ -521,7 +521,7 @@ jQuery(function($) {
             $matching[] = [
                 'id'       => 'standard',
                 'provider' => '',
-                'service'  => __( 'Standard Shipping', 'ulticommerce-core' ),
+                'service'  => __( 'Standard Shipping', 'ulticommerce' ),
                 'cost'     => 29,
                 'country'  => $country,
             ];
@@ -581,7 +581,7 @@ jQuery(function($) {
         $zip     = sanitize_text_field( wp_unslash( $_POST['zip'] ?? '' ) );
 
         if ( empty( $country ) ) {
-            wp_send_json_error( [ 'message' => __( 'Please select a country.', 'ulticommerce-core' ) ] );
+            wp_send_json_error( [ 'message' => __( 'Please select a country.', 'ulticommerce' ) ] );
         }
 
         $country = self::get_alpha3_from_alpha2( $country );

@@ -11,26 +11,26 @@ class UltiCommerce_Product_Taxonomies {
     public function register_taxonomies() {
         $taxonomies = [
             'product_category' => [
-                'label'        => __( 'Product Categories', 'ulticommerce-core' ),
-                'singular'     => __( 'Product Category', 'ulticommerce-core' ),
+                'label'        => __( 'Product Categories', 'ulticommerce' ),
+                'singular'     => __( 'Product Category', 'ulticommerce' ),
                 'hierarchical' => true,
                 'rewrite'      => [ 'slug' => 'product-category' ],
             ],
             'product_brand' => [
-                'label'        => __( 'Brands', 'ulticommerce-core' ),
-                'singular'     => __( 'Brand', 'ulticommerce-core' ),
+                'label'        => __( 'Brands', 'ulticommerce' ),
+                'singular'     => __( 'Brand', 'ulticommerce' ),
                 'hierarchical' => true,
                 'rewrite'      => [ 'slug' => 'brand' ],
             ],
             'product_collection' => [
-                'label'        => __( 'Collections', 'ulticommerce-core' ),
-                'singular'     => __( 'Collection', 'ulticommerce-core' ),
+                'label'        => __( 'Collections', 'ulticommerce' ),
+                'singular'     => __( 'Collection', 'ulticommerce' ),
                 'hierarchical' => true,
                 'rewrite'      => [ 'slug' => 'collection' ],
             ],
             'product_tag' => [
-                'label'        => __( 'Product Tags', 'ulticommerce-core' ),
-                'singular'     => __( 'Product Tag', 'ulticommerce-core' ),
+                'label'        => __( 'Product Tags', 'ulticommerce' ),
+                'singular'     => __( 'Product Tag', 'ulticommerce' ),
                 'hierarchical' => false,
                 'rewrite'      => [ 'slug' => 'product-tag' ],
             ],
@@ -42,17 +42,17 @@ class UltiCommerce_Product_Taxonomies {
                     'name'          => $config['label'],
                     'singular_name' => $config['singular'],
                     /* translators: %s: taxonomy label */
-                    'search_items'  => sprintf( __( 'Search %s', 'ulticommerce-core' ), $config['label'] ),
+                    'search_items'  => sprintf( __( 'Search %s', 'ulticommerce' ), $config['label'] ),
                     /* translators: %s: taxonomy label */
-                    'all_items'     => sprintf( __( 'All %s', 'ulticommerce-core' ), $config['label'] ),
+                    'all_items'     => sprintf( __( 'All %s', 'ulticommerce' ), $config['label'] ),
                     /* translators: %s: taxonomy singular name */
-                    'edit_item'     => sprintf( __( 'Edit %s', 'ulticommerce-core' ), $config['singular'] ),
+                    'edit_item'     => sprintf( __( 'Edit %s', 'ulticommerce' ), $config['singular'] ),
                     /* translators: %s: taxonomy singular name */
-                    'update_item'   => sprintf( __( 'Update %s', 'ulticommerce-core' ), $config['singular'] ),
+                    'update_item'   => sprintf( __( 'Update %s', 'ulticommerce' ), $config['singular'] ),
                     /* translators: %s: taxonomy singular name */
-                    'add_new_item'  => sprintf( __( 'Add New %s', 'ulticommerce-core' ), $config['singular'] ),
+                    'add_new_item'  => sprintf( __( 'Add New %s', 'ulticommerce' ), $config['singular'] ),
                     /* translators: %s: taxonomy singular name */
-                    'new_item_name' => sprintf( __( 'New %s Name', 'ulticommerce-core' ), $config['singular'] ),
+                    'new_item_name' => sprintf( __( 'New %s Name', 'ulticommerce' ), $config['singular'] ),
                     'menu_name'     => $config['label'],
                 ],
                 'hierarchical'      => $config['hierarchical'],

@@ -35,7 +35,7 @@ class UltiCommerce_Product_REST {
         $post       = get_post( $product_id );
 
         if ( ! $post || $post->post_type !== 'product' || $post->post_status !== 'publish' ) {
-            return new WP_Error( 'not_found', __( 'Product not found', 'ulticommerce-core' ), [ 'status' => 404 ] );
+            return new WP_Error( 'not_found', __( 'Product not found', 'ulticommerce' ), [ 'status' => 404 ] );
         }
 
         return $this->format_product( $post );

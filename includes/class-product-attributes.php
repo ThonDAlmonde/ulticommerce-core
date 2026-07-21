@@ -16,15 +16,15 @@ class UltiCommerce_Product_Attributes {
     public function register_attribute_taxonomy() {
         register_taxonomy( 'product_attribute', 'product', [
             'labels' => [
-                'name'              => __( 'Product Attributes', 'ulticommerce-core' ),
-                'singular_name'     => __( 'Product Attribute', 'ulticommerce-core' ),
-                'search_items'      => __( 'Search Attributes', 'ulticommerce-core' ),
-                'all_items'         => __( 'All Attributes', 'ulticommerce-core' ),
-                'edit_item'         => __( 'Edit Attribute', 'ulticommerce-core' ),
-                'update_item'       => __( 'Update Attribute', 'ulticommerce-core' ),
-                'add_new_item'      => __( 'Add New Attribute', 'ulticommerce-core' ),
-                'new_item_name'     => __( 'New Attribute', 'ulticommerce-core' ),
-                'menu_name'         => __( 'Attributes', 'ulticommerce-core' ),
+                'name'              => __( 'Product Attributes', 'ulticommerce' ),
+                'singular_name'     => __( 'Product Attribute', 'ulticommerce' ),
+                'search_items'      => __( 'Search Attributes', 'ulticommerce' ),
+                'all_items'         => __( 'All Attributes', 'ulticommerce' ),
+                'edit_item'         => __( 'Edit Attribute', 'ulticommerce' ),
+                'update_item'       => __( 'Update Attribute', 'ulticommerce' ),
+                'add_new_item'      => __( 'Add New Attribute', 'ulticommerce' ),
+                'new_item_name'     => __( 'New Attribute', 'ulticommerce' ),
+                'menu_name'         => __( 'Attributes', 'ulticommerce' ),
             ],
             'public'            => true,
             'show_in_rest'      => true,
@@ -40,11 +40,11 @@ class UltiCommerce_Product_Attributes {
         $product_attrs = [];
         ?>
         <div class="form-field product-attributes-wrap">
-            <label><?php esc_html_e( 'Attributes', 'ulticommerce-core' ); ?></label>
+            <label><?php esc_html_e( 'Attributes', 'ulticommerce' ); ?></label>
             <div id="product-attribute-rows">
                 <?php $this->render_attribute_rows( 0, $product_attrs ); ?>
             </div>
-            <button type="button" class="button" id="add-attribute-row"><?php esc_html_e( 'Add Attribute', 'ulticommerce-core' ); ?></button>
+            <button type="button" class="button" id="add-attribute-row"><?php esc_html_e( 'Add Attribute', 'ulticommerce' ); ?></button>
         </div>
         <?php
         $attr_nonce = wp_create_nonce( 'ulti_edit_attributes' );
@@ -76,7 +76,7 @@ jQuery(function($) {
             $.get(ajaxurl, { action: "ulti_get_attr_terms", attr_slug: slug, _ajax_nonce: attrNonce }, function(data) {
                 if (data) {
                     $values.replaceWith(
-                        "<input type=\"text\" class=\"attr-values\" name=\"product_attributes[" + $row.data("index") + "][values]\" value=\"" + data.join(", ") + "\" placeholder=\"' . esc_attr__( 'Comma-separated values', 'ulticommerce-core' ) . '\">"
+                        "<input type=\"text\" class=\"attr-values\" name=\"product_attributes[" + $row.data("index") + "][values]\" value=\"" + data.join(", ") + "\" placeholder=\"' . esc_attr__( 'Comma-separated values', 'ulticommerce' ) . '\">"
                     );
                 }
             }, "json");
@@ -93,12 +93,12 @@ jQuery(function($) {
         ?>
         <table class="form-table">
             <tr>
-                <th><label><?php esc_html_e( 'Attributes', 'ulticommerce-core' ); ?></label></th>
+                <th><label><?php esc_html_e( 'Attributes', 'ulticommerce' ); ?></label></th>
                 <td>
                     <div id="product-attribute-rows">
                         <?php $this->render_attribute_rows( $post->ID, $product_attrs ); ?>
                     </div>
-                    <button type="button" class="button" id="add-attribute-row"><?php esc_html_e( 'Add Attribute', 'ulticommerce-core' ); ?></button>
+                    <button type="button" class="button" id="add-attribute-row"><?php esc_html_e( 'Add Attribute', 'ulticommerce' ); ?></button>
                 </td>
             </tr>
         </table>
@@ -136,7 +136,7 @@ jQuery(function($) {
                 ?>
                 <div class="attr-row" data-index="<?php echo esc_attr( $i ); ?>">
                     <select name="product_attributes[<?php echo esc_attr( $i ); ?>][name]" class="attr-name-select">
-                        <option value=""><?php esc_html_e( 'Select attribute&hellip;', 'ulticommerce-core' ); ?></option>
+                        <option value=""><?php esc_html_e( 'Select attribute&hellip;', 'ulticommerce' ); ?></option>
                         <?php foreach ( $attributes as $attr ) : ?>
                             <option value="<?php echo esc_attr( $attr->slug ); ?>" <?php selected( $attr->slug, $attr_name ); ?>>
                                 <?php echo esc_html( $attr->name ); ?>
@@ -145,7 +145,7 @@ jQuery(function($) {
                     </select>
                     <input type="text" name="product_attributes[<?php echo esc_attr( $i ); ?>][values]" class="attr-values"
                            value="<?php echo esc_attr( $values ); ?>"
-                           placeholder="<?php esc_attr_e( 'Red, Blue, Green', 'ulticommerce-core' ); ?>">
+                           placeholder="<?php esc_attr_e( 'Red, Blue, Green', 'ulticommerce' ); ?>">
                     <a href="#" class="remove-attr-row">&times;</a>
                 </div>
                 <?php
@@ -177,7 +177,7 @@ jQuery(function($) {
     }
 
     public function add_columns( $columns ) {
-        $columns['product_attributes'] = esc_html__( 'Attributes', 'ulticommerce-core' );
+        $columns['product_attributes'] = esc_html__( 'Attributes', 'ulticommerce' );
         return $columns;
     }
 
@@ -206,13 +206,13 @@ function ulti_get_attribute_row_cb() {
     ?>
     <div class="attr-row" data-index="<?php echo esc_attr( $index ); ?>">
         <select name="product_attributes[<?php echo esc_attr( $index ); ?>][name]" class="attr-name-select">
-            <option value=""><?php esc_html_e( 'Select attribute&hellip;', 'ulticommerce-core' ); ?></option>
+            <option value=""><?php esc_html_e( 'Select attribute&hellip;', 'ulticommerce' ); ?></option>
             <?php foreach ( $attributes as $attr ) : ?>
                 <option value="<?php echo esc_attr( $attr->slug ); ?>"><?php echo esc_html( $attr->name ); ?></option>
             <?php endforeach; ?>
         </select>
         <input type="text" name="product_attributes[<?php echo esc_attr( $index ); ?>][values]" class="attr-values"
-               placeholder="<?php esc_attr_e( 'Red, Blue, Green', 'ulticommerce-core' ); ?>">
+               placeholder="<?php esc_attr_e( 'Red, Blue, Green', 'ulticommerce' ); ?>">
         <a href="#" class="remove-attr-row">&times;</a>
     </div>
     <?php
