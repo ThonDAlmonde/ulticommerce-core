@@ -2,7 +2,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_Taxonomies {
+class Ultico_Product_Taxonomies {
 
     public function __construct() {
         add_action( 'init', [ $this, 'register_taxonomies' ] );
@@ -66,4 +66,4 @@ class UltiCommerce_Product_Taxonomies {
     }
 }
 
-new UltiCommerce_Product_Taxonomies();
+new Ultico_Product_Taxonomies();

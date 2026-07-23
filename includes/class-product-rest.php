@@ -2,7 +2,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_REST {
+class Ultico_Product_REST {
 
     public function __construct() {
         add_action( 'rest_api_init', [ $this, 'register_routes' ] );
@@ -111,7 +111,7 @@ class UltiCommerce_Product_REST {
             ];
         }
 
-        $lang = get_option( 'ulti_default_language', 'en_US' );
+        $lang = get_option( 'ultico_default_language', 'en_US' );
         if ( function_exists( 'pll_get_post_language' ) && $lang !== 'en_US' ) {
             $lang = pll_get_post_language( $post->ID );
         }
@@ -130,7 +130,7 @@ class UltiCommerce_Product_REST {
             'height'            => get_post_meta( $post->ID, '_product_height', true ),
             'enabled'           => (bool) get_post_meta( $post->ID, '_product_enabled', true ),
             'language'          => $lang,
-            'currency'          => get_option( 'ulti_default_currency', 'USD' ),
+            'currency'          => get_option( 'ultico_default_currency', 'USD' ),
             'featured_image'    => get_the_post_thumbnail_url( $post->ID, 'full' ) ?: null,
             'gallery'           => $gallery_urls,
             'categories'        => $this->get_term_list( $post->ID, 'product_category' ),
@@ -164,4 +164,4 @@ class UltiCommerce_Product_REST {
     }
 }
 
-new UltiCommerce_Product_REST();
+new Ultico_Product_REST();

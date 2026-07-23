@@ -2,7 +2,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_Settings {
+class Ultico_Product_Settings {
 
     private $languages = [
         'en_US' => 'English (US)',
@@ -31,41 +31,41 @@ class UltiCommerce_Product_Settings {
 
     public function add_settings_page() {
         add_submenu_page(
-            'edit.php?post_type=product',
+            'edit.php?post_type=ultico_product',
             __( 'Product Settings', 'ulticommerce' ),
             __( 'Settings', 'ulticommerce' ),
             'manage_options',
-            'ulti-product-settings',
+            'ultico-product-settings',
             [ $this, 'render_page' ]
         );
     }
 
     public function register_settings() {
-        register_setting( 'ulti_product_settings', 'ulti_default_language', [
+        register_setting( 'ultico_product_settings', 'ultico_default_language', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => 'en_US',
         ] );
-        register_setting( 'ulti_product_settings', 'ulti_default_currency', [
+        register_setting( 'ultico_product_settings', 'ultico_default_currency', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => 'USD',
         ] );
-        register_setting( 'ulti_product_settings', 'ulti_currency_display', [
+        register_setting( 'ultico_product_settings', 'ultico_currency_display', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => 'symbol_before',
         ] );
-        register_setting( 'ulti_product_settings', 'ulti_thousand_sep', [
+        register_setting( 'ultico_product_settings', 'ultico_thousand_sep', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => ',',
         ] );
-        register_setting( 'ulti_product_settings', 'ulti_decimal_sep', [
+        register_setting( 'ultico_product_settings', 'ultico_decimal_sep', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => '.',
         ] );
-        register_setting( 'ulti_product_settings', 'ulti_deduct_stock_on_status', [
+        register_setting( 'ultico_product_settings', 'ultico_deduct_stock_on_status', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => 'paid',
         ] );
-        register_setting( 'ulti_product_settings', 'ulti_enable_reviews', [
+        register_setting( 'ultico_product_settings', 'ultico_enable_reviews', [
             'sanitize_callback' => 'sanitize_text_field',
             'default'           => '1',
         ] );
@@ -103,10 +103,10 @@ class UltiCommerce_Product_Settings {
 
     public function render_page() {
         if ( ! current_user_can( 'manage_options' ) ) return;
-        $current_currency = get_option( 'ulti_default_currency', 'USD' );
-        $current_format   = get_option( 'ulti_currency_display', 'symbol_before' );
-        $current_thousand = get_option( 'ulti_thousand_sep', ',' );
-        $current_decimal  = get_option( 'ulti_decimal_sep', '.' );
+        $current_currency = get_option( 'ultico_default_currency', 'USD' );
+        $current_format   = get_option( 'ultico_currency_display', 'symbol_before' );
+        $current_thousand = get_option( 'ultico_thousand_sep', ',' );
+        $current_decimal  = get_option( 'ultico_decimal_sep', '.' );
         $formats          = self::get_display_formats();
         $presets          = self::get_separator_presets();
         ?>
@@ -114,17 +114,17 @@ class UltiCommerce_Product_Settings {
             <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
             <form method="post" action="options.php">
-                <?php settings_fields( 'ulti_product_settings' ); ?>
+                <?php settings_fields( 'ultico_product_settings' ); ?>
 
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="ulti_default_language"><?php esc_html_e( 'Default Language', 'ulticommerce' ); ?></label>
+                            <label for="ultico_default_language"><?php esc_html_e( 'Default Language', 'ulticommerce' ); ?></label>
                         </th>
                         <td>
-                            <select name="ulti_default_language" id="ulti_default_language">
+                            <select name="ultico_default_language" id="ultico_default_language">
                                 <?php foreach ( $this->languages as $code => $label ) : ?>
-                                    <option value="<?php echo esc_attr( $code ); ?>" <?php selected( get_option( 'ulti_default_language', 'en_US' ), $code ); ?>>
+                                    <option value="<?php echo esc_attr( $code ); ?>" <?php selected( get_option( 'ultico_default_language', 'en_US' ), $code ); ?>>
                                         <?php echo esc_html( $label ); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -137,10 +137,10 @@ class UltiCommerce_Product_Settings {
 
                     <tr>
                         <th scope="row">
-                            <label for="ulti_default_currency"><?php esc_html_e( 'Default Currency', 'ulticommerce' ); ?></label>
+                            <label for="ultico_default_currency"><?php esc_html_e( 'Default Currency', 'ulticommerce' ); ?></label>
                         </th>
                         <td>
-                            <select name="ulti_default_currency" id="ulti_default_currency">
+                            <select name="ultico_default_currency" id="ultico_default_currency">
                                 <?php foreach ( $this->currencies as $code => $label ) : ?>
                                     <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $current_currency, $code ); ?>>
                                         <?php echo esc_html( $label ); ?>
@@ -155,10 +155,10 @@ class UltiCommerce_Product_Settings {
 
                     <tr>
                         <th scope="row">
-                            <label for="ulti_currency_display"><?php esc_html_e( 'Currency Display Format', 'ulticommerce' ); ?></label>
+                            <label for="ultico_currency_display"><?php esc_html_e( 'Currency Display Format', 'ulticommerce' ); ?></label>
                         </th>
                         <td>
-                            <select name="ulti_currency_display" id="ulti_currency_display">
+                            <select name="ultico_currency_display" id="ultico_currency_display">
                                 <?php foreach ( $formats as $code => $label ) : ?>
                                     <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $current_format, $code ); ?>>
                                         <?php echo esc_html( $label ); ?>
@@ -178,20 +178,20 @@ class UltiCommerce_Product_Settings {
                         <td>
                             <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
                                 <div>
-                                    <label for="ulti_separator_preset" style="display:block;font-size:12px;font-weight:600;margin-bottom:2px;"><?php esc_html_e( 'Preset', 'ulticommerce' ); ?></label>
-                                    <select id="ulti_separator_preset">
+                                    <label for="ultico_separator_preset" style="display:block;font-size:12px;font-weight:600;margin-bottom:2px;"><?php esc_html_e( 'Preset', 'ulticommerce' ); ?></label>
+                                    <select id="ultico_separator_preset">
                                         <?php foreach ( $presets as $key => $p ) : ?>
                                         <option value="<?php echo esc_attr( $key ); ?>" data-thousand="<?php echo esc_attr( $p['thousand'] ); ?>" data-decimal="<?php echo esc_attr( $p['decimal'] ); ?>" <?php selected( $p['thousand'] === $current_thousand && $p['decimal'] === $current_decimal, true ); ?>><?php echo esc_html( $p['label'] ); ?> (<?php echo esc_html( $p['example'] ); ?>)</option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="ulti_thousand_sep" style="display:block;font-size:12px;font-weight:600;margin-bottom:2px;"><?php esc_html_e( 'Thousand', 'ulticommerce' ); ?></label>
-                                    <input type="text" name="ulti_thousand_sep" id="ulti_thousand_sep" value="<?php echo esc_attr( $current_thousand ); ?>" size="3" maxlength="2" style="text-align:center;">
+                                    <label for="ultico_thousand_sep" style="display:block;font-size:12px;font-weight:600;margin-bottom:2px;"><?php esc_html_e( 'Thousand', 'ulticommerce' ); ?></label>
+                                    <input type="text" name="ultico_thousand_sep" id="ultico_thousand_sep" value="<?php echo esc_attr( $current_thousand ); ?>" size="3" maxlength="2" style="text-align:center;">
                                 </div>
                                 <div>
-                                    <label for="ulti_decimal_sep" style="display:block;font-size:12px;font-weight:600;margin-bottom:2px;"><?php esc_html_e( 'Decimal', 'ulticommerce' ); ?></label>
-                                    <input type="text" name="ulti_decimal_sep" id="ulti_decimal_sep" value="<?php echo esc_attr( $current_decimal ); ?>" size="3" maxlength="2" style="text-align:center;">
+                                    <label for="ultico_decimal_sep" style="display:block;font-size:12px;font-weight:600;margin-bottom:2px;"><?php esc_html_e( 'Decimal', 'ulticommerce' ); ?></label>
+                                    <input type="text" name="ultico_decimal_sep" id="ultico_decimal_sep" value="<?php echo esc_attr( $current_decimal ); ?>" size="3" maxlength="2" style="text-align:center;">
                                 </div>
                             </div>
                             <p class="description">
@@ -205,14 +205,14 @@ class UltiCommerce_Product_Settings {
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="ulti_deduct_stock_on_status"><?php esc_html_e( 'Deduct Stock On Status', 'ulticommerce' ); ?></label>
+                            <label for="ultico_deduct_stock_on_status"><?php esc_html_e( 'Deduct Stock On Status', 'ulticommerce' ); ?></label>
                         </th>
                         <td>
-                            <select name="ulti_deduct_stock_on_status" id="ulti_deduct_stock_on_status">
-                                <option value="new" <?php selected( get_option( 'ulti_deduct_stock_on_status', 'paid' ), 'new' ); ?>><?php esc_html_e( 'New', 'ulticommerce' ); ?></option>
-                                <option value="pending_payment" <?php selected( get_option( 'ulti_deduct_stock_on_status', 'paid' ), 'pending_payment' ); ?>><?php esc_html_e( 'Pending Payment', 'ulticommerce' ); ?></option>
-                                <option value="paid" <?php selected( get_option( 'ulti_deduct_stock_on_status', 'paid' ), 'paid' ); ?>><?php esc_html_e( 'Paid', 'ulticommerce' ); ?></option>
-                                <option value="deducted" <?php selected( get_option( 'ulti_deduct_stock_on_status', 'paid' ), 'deducted' ); ?>><?php esc_html_e( 'Deducted', 'ulticommerce' ); ?></option>
+                            <select name="ultico_deduct_stock_on_status" id="ultico_deduct_stock_on_status">
+                                <option value="new" <?php selected( get_option( 'ultico_deduct_stock_on_status', 'paid' ), 'new' ); ?>><?php esc_html_e( 'New', 'ulticommerce' ); ?></option>
+                                <option value="pending_payment" <?php selected( get_option( 'ultico_deduct_stock_on_status', 'paid' ), 'pending_payment' ); ?>><?php esc_html_e( 'Pending Payment', 'ulticommerce' ); ?></option>
+                                <option value="paid" <?php selected( get_option( 'ultico_deduct_stock_on_status', 'paid' ), 'paid' ); ?>><?php esc_html_e( 'Paid', 'ulticommerce' ); ?></option>
+                                <option value="deducted" <?php selected( get_option( 'ultico_deduct_stock_on_status', 'paid' ), 'deducted' ); ?>><?php esc_html_e( 'Deducted', 'ulticommerce' ); ?></option>
                             </select>
                             <p class="description">
                                 <?php esc_html_e( 'Stock will be automatically deducted when an order reaches this status.', 'ulticommerce' ); ?>
@@ -225,11 +225,11 @@ class UltiCommerce_Product_Settings {
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="ulti_enable_reviews"><?php esc_html_e( 'Enable Reviews', 'ulticommerce' ); ?></label>
+                            <label for="ultico_enable_reviews"><?php esc_html_e( 'Enable Reviews', 'ulticommerce' ); ?></label>
                         </th>
                         <td>
                             <label>
-                                <input type="checkbox" name="ulti_enable_reviews" id="ulti_enable_reviews" value="1" <?php checked( get_option( 'ulti_enable_reviews', '1' ), '1' ); ?>>
+                                <input type="checkbox" name="ultico_enable_reviews" id="ultico_enable_reviews" value="1" <?php checked( get_option( 'ultico_enable_reviews', '1' ), '1' ); ?>>
                                 <?php esc_html_e( 'Allow customers to leave product reviews', 'ulticommerce' ); ?>
                             </label>
                             <p class="description">
@@ -265,7 +265,7 @@ class UltiCommerce_Product_Settings {
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
-    var symbols = ' . json_encode( [ 'USD' => '$', 'THB' => '฿', 'CNY' => '¥', 'EUR' => '€', 'GBP' => '£', 'RUB' => '₽', 'INR' => '₹', 'JPY' => '¥' ] ) . ';
+    var symbols = ' . wp_json_encode( [ 'USD' => '$', 'THB' => '฿', 'CNY' => '¥', 'EUR' => '€', 'GBP' => '£', 'RUB' => '₽', 'INR' => '₹', 'JPY' => '¥' ] ) . ';
 
     function formatPrice(amount, currency, format, thousand, decimal) {
         var symbol = symbols[currency] || "$";
@@ -281,10 +281,10 @@ jQuery(function($) {
     }
 
     function updatePreview() {
-        var format = $("#ulti_currency_display").val();
-        var currency = $("#ulti_default_currency").val();
-        var thousand = $("#ulti_thousand_sep").val() || ",";
-        var decimal = $("#ulti_decimal_sep").val() || ".";
+        var format = $("#ultico_currency_display").val();
+        var currency = $("#ultico_default_currency").val();
+        var thousand = $("#ultico_thousand_sep").val() || ",";
+        var decimal = $("#ultico_decimal_sep").val() || ".";
         var amount = 1234567.89;
 
         $("#preview-amount").text(formatPrice(amount, currency, format, thousand, decimal));
@@ -297,18 +297,18 @@ jQuery(function($) {
         });
     }
 
-    $("#ulti_separator_preset").on("change", function() {
+    $("#ultico_separator_preset").on("change", function() {
         var opt = $(this).find(":selected");
-        $("#ulti_thousand_sep").val(opt.data("thousand"));
-        $("#ulti_decimal_sep").val(opt.data("decimal"));
+        $("#ultico_thousand_sep").val(opt.data("thousand"));
+        $("#ultico_decimal_sep").val(opt.data("decimal"));
         updatePreview();
     });
 
-    $("#ulti_currency_display, #ulti_default_currency, #ulti_thousand_sep, #ulti_decimal_sep").on("change keyup", updatePreview);
+    $("#ultico_currency_display, #ultico_default_currency, #ultico_thousand_sep, #ultico_decimal_sep").on("change keyup", updatePreview);
     updatePreview();
 });
 ' );
     }
 }
 
-new UltiCommerce_Product_Settings();
+new Ultico_Product_Settings();

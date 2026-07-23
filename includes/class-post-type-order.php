@@ -2,40 +2,40 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Order_CPT {
+class Ultico_Order_CPT {
 
     public function __construct() {
         add_action( 'init', [ $this, 'register_post_type' ] );
-        add_filter( 'manage_order_posts_columns', [ $this, 'custom_columns' ] );
-        add_action( 'manage_order_posts_custom_column', [ $this, 'custom_column_data' ], 10, 2 );
-        add_filter( 'manage_edit-order_sortable_columns', [ $this, 'sortable_columns' ] );
+        add_filter( 'manage_ultico_order_posts_columns', [ $this, 'custom_columns' ] );
+        add_action( 'manage_ultico_order_posts_custom_column', [ $this, 'custom_column_data' ], 10, 2 );
+        add_filter( 'manage_edit-ultico_order_sortable_columns', [ $this, 'sortable_columns' ] );
         add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ] );
-        add_action( 'save_post_order', [ $this, 'save_order_meta' ] );
+        add_action( 'save_post_ultico_order', [ $this, 'save_order_meta' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
-        add_filter( 'bulk_actions-edit-order', [ $this, 'bulk_status_actions' ] );
-        add_action( 'wp_ajax_ulti_bulk_update_order_status', [ $this, 'ajax_bulk_update_status' ] );
+        add_filter( 'bulk_actions-edit-ultico_order', [ $this, 'bulk_status_actions' ] );
+        add_action( 'wp_ajax_ultico_bulk_update_order_status', [ $this, 'ajax_bulk_update_status' ] );
         add_action( 'restrict_manage_posts', [ $this, 'admin_filters' ] );
         add_filter( 'parse_query', [ $this, 'apply_admin_filters' ] );
-        add_action( 'admin_action_ulti_print_invoice', [ $this, 'print_invoice' ] );
+        add_action( 'admin_action_ultico_print_invoice', [ $this, 'print_invoice' ] );
         add_filter( 'post_row_actions', [ $this, 'row_actions' ], 10, 2 );
-        add_action( 'wp_ajax_ulti_add_order_note', [ $this, 'ajax_add_note' ] );
+        add_action( 'wp_ajax_ultico_add_order_note', [ $this, 'ajax_add_note' ] );
         add_action( 'wp_trash_post', [ $this, 'prevent_trash_final_status' ] );
         add_action( 'init', [ $this, 'schedule_cron_events' ] );
-        add_action( 'ulti_auto_cancel_expired_orders', [ $this, 'auto_cancel_expired_orders' ] );
-        add_action( 'handle_bulk_actions-edit-order', [ $this, 'handle_bulk_status_action' ], 10, 3 );
+        add_action( 'ultico_auto_cancel_expired_orders', [ $this, 'auto_cancel_expired_orders' ] );
+        add_action( 'handle_bulk_actions-edit-ultico_order', [ $this, 'handle_bulk_status_action' ], 10, 3 );
         add_action( 'admin_notices', [ $this, 'bulk_action_admin_notice' ] );
         add_action( 'template_redirect', [ $this, 'handle_print_invoice' ] );
     }
 
     public function schedule_cron_events() {
-        if ( ! wp_next_scheduled( 'ulti_auto_cancel_expired_orders' ) ) {
-            wp_schedule_event( time(), 'hourly', 'ulti_auto_cancel_expired_orders' );
+        if ( ! wp_next_scheduled( 'ultico_auto_cancel_expired_orders' ) ) {
+            wp_schedule_event( time(), 'hourly', 'ultico_auto_cancel_expired_orders' );
         }
     }
 
     public function auto_cancel_expired_orders() {
         $orders = get_posts( [
-            'post_type'      => 'order',
+            'post_type'      => 'ultico_order',
             'post_status'    => 'publish',
             'posts_per_page' => 50,
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
@@ -57,15 +57,15 @@ class UltiCommerce_Order_CPT {
             $old = get_post_meta( $order->ID, '_order_status', true ) ?: 'new';
             update_post_meta( $order->ID, '_order_status', 'canceled' );
             self::log_status_change( $order->ID, 'canceled' );
-            do_action( 'ulti_order_status_changed', $order->ID, $old, 'canceled' );
-            if ( function_exists( 'ulti_send_order_email' ) ) {
-                ulti_send_order_email( $order->ID, 'canceled' );
+            do_action( 'ultico_order_status_changed', $order->ID, $old, 'canceled' );
+            if ( function_exists( 'ultico_send_order_email' ) ) {
+                ultico_send_order_email( $order->ID, 'canceled' );
             }
         }
     }
 
     public function register_post_type() {
-        register_post_type( 'order', [
+        register_post_type( 'ultico_order', [
             'labels' => [
                 'name'               => __( 'Orders', 'ulticommerce' ),
                 'singular_name'      => __( 'Order', 'ulticommerce' ),
@@ -132,29 +132,29 @@ class UltiCommerce_Order_CPT {
                 $method = get_post_meta( $post_id, '_order_shipping_method', true );
                 $cost   = get_post_meta( $post_id, '_order_shipping_cost', true );
                 echo esc_html( $method ?: '—' );
-                if ( $cost ) echo '<br><small>' . esc_html( ulti_format_price( $cost ) ) . '</small>';
+                if ( $cost ) echo '<br><small>' . esc_html( ultico_format_price( $cost ) ) . '</small>';
                 break;
             case 'total':
                 $total = get_post_meta( $post_id, '_order_total', true );
-                echo esc_html( ulti_format_price( $total ?: 0 ) );
+                echo esc_html( ultico_format_price( $total ?: 0 ) );
                 break;
             case 'status':
                 $status  = get_post_meta( $post_id, '_order_status', true ) ?: 'new';
-                $class   = UltiCommerce_Order_Statuses::get_badge_class( $status );
-                $is_final = UltiCommerce_Order_Statuses::is_final_status( $status );
+                $class   = Ultico_Order_Statuses::get_badge_class( $status );
+                $is_final = Ultico_Order_Statuses::is_final_status( $status );
                 ?>
                 <span class="uti-badge order-status-badge <?php echo esc_attr( $class ); ?> <?php echo $is_final ? 'status-final' : 'status-editable'; ?>"
                       data-post-id="<?php echo esc_attr( $post_id ); ?>"
-                      data-nonce="<?php echo esc_attr( wp_create_nonce( 'ulti_update_status_' . $post_id ) ); ?>"
+                      data-nonce="<?php echo esc_attr( wp_create_nonce( 'ultico_update_status_' . $post_id ) ); ?>"
                       title="<?php echo $is_final ? esc_attr__( 'Final status', 'ulticommerce' ) : esc_attr__( 'Click to change', 'ulticommerce' ); ?>"
                       style="cursor:<?php echo $is_final ? 'default' : 'pointer'; ?>;">
-                    <?php echo esc_html( UltiCommerce_Order_Statuses::get_label( $status ) ); ?>
+                    <?php echo esc_html( Ultico_Order_Statuses::get_label( $status ) ); ?>
                 </span>
                 <?php if ( ! $is_final ) :
-                    $allowed = UltiCommerce_Order_Statuses::get_allowed_transitions( $status );
+                    $allowed = Ultico_Order_Statuses::get_allowed_transitions( $status );
                 ?>
-                <select class="order-status-dropdown" data-post-id="<?php echo esc_attr( $post_id ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'ulti_update_status_' . $post_id ) ); ?>" style="display:none;width:100%;">
-                    <?php foreach ( UltiCommerce_Order_Statuses::get_statuses() as $slug => $lbl ) :
+                <select class="order-status-dropdown" data-post-id="<?php echo esc_attr( $post_id ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'ultico_update_status_' . $post_id ) ); ?>" style="display:none;width:100%;">
+                    <?php foreach ( Ultico_Order_Statuses::get_statuses() as $slug => $lbl ) :
                         $option_disabled = $slug !== $status && ! in_array( $slug, $allowed, true ) ? 'disabled' : '';
                     ?>
                         <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $status, $slug ); ?> <?php echo esc_attr( $option_disabled ); ?>><?php echo esc_html( $lbl ); ?></option>
@@ -167,8 +167,8 @@ class UltiCommerce_Order_CPT {
     }
 
     public function row_actions( $actions, $post ) {
-        if ( $post->post_type !== 'order' ) return $actions;
-        $actions['invoice'] = '<a href="' . esc_url( wp_nonce_url( admin_url( 'admin.php?action=ulti_print_invoice&post=' . $post->ID ), 'print_invoice_' . $post->ID ) ) . '" target="_blank">' . esc_html__( 'Invoice', 'ulticommerce' ) . '</a>';
+        if ( $post->post_type !== 'ultico_order' ) return $actions;
+        $actions['invoice'] = '<a href="' . esc_url( wp_nonce_url( admin_url( 'admin.php?action=ultico_print_invoice&post=' . $post->ID ), 'ultico_print_invoice_' . $post->ID ) ) . '" target="_blank">' . esc_html__( 'Invoice', 'ulticommerce' ) . '</a>';
         $order_num = get_post_meta( $post->ID, '_order_number', true );
         if ( $order_num ) {
             $pdf_dir = wp_upload_dir()['basedir'] . '/invoices/INV-' . $order_num . '.pdf';
@@ -179,7 +179,7 @@ class UltiCommerce_Order_CPT {
         }
 
         $status = get_post_meta( $post->ID, '_order_status', true ) ?: 'new';
-        if ( UltiCommerce_Order_Statuses::is_final_status( $status ) ) {
+        if ( Ultico_Order_Statuses::is_final_status( $status ) ) {
             unset( $actions['trash'] );
         }
 
@@ -187,7 +187,7 @@ class UltiCommerce_Order_CPT {
     }
 
     public function admin_filters( $post_type ) {
-        if ( $post_type !== 'order' ) return;
+        if ( $post_type !== 'ultico_order' ) return;
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
         $status = isset( $_GET['order_status_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['order_status_filter'] ) ) : '';
         $date   = isset( $_GET['order_date_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['order_date_filter'] ) ) : '';
@@ -196,7 +196,7 @@ class UltiCommerce_Order_CPT {
         ?>
         <select name="order_status_filter">
             <option value=""><?php esc_html_e( 'All statuses', 'ulticommerce' ); ?></option>
-            <?php foreach ( UltiCommerce_Order_Statuses::get_statuses() as $slug => $label ) : ?>
+            <?php foreach ( Ultico_Order_Statuses::get_statuses() as $slug => $label ) : ?>
                 <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $status, $slug ); ?>><?php echo esc_html( $label ); ?></option>
             <?php endforeach; ?>
         </select>
@@ -214,7 +214,7 @@ class UltiCommerce_Order_CPT {
 
     public function apply_admin_filters( $query ) {
         global $pagenow;
-        if ( ! is_admin() || $pagenow !== 'edit.php' || $query->get( 'post_type' ) !== 'order' ) return;
+        if ( ! is_admin() || $pagenow !== 'edit.php' || $query->get( 'post_type' ) !== 'ultico_order' ) return;
         if ( ! $query->is_main_query() ) return;
 
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
@@ -262,14 +262,14 @@ class UltiCommerce_Order_CPT {
     }
 
     public function add_meta_boxes() {
-        add_meta_box( 'order_status_box', esc_html__( 'Order Status', 'ulticommerce' ), [ $this, 'render_status_box' ], 'order', 'side', 'high' );
-        add_meta_box( 'order_details', esc_html__( 'Order Details', 'ulticommerce' ), [ $this, 'render_meta_box' ], 'order', 'normal', 'high' );
-        add_meta_box( 'order_delivery', esc_html__( 'Delivery & Tracking', 'ulticommerce' ), [ $this, 'render_delivery_box' ], 'order', 'side', 'high' );
-        add_meta_box( 'order_notes', esc_html__( 'Order Notes', 'ulticommerce' ), [ $this, 'render_notes_box' ], 'order', 'normal' );
+        add_meta_box( 'order_status_box', esc_html__( 'Order Status', 'ulticommerce' ), [ $this, 'render_status_box' ], 'ultico_order', 'side', 'high' );
+        add_meta_box( 'order_details', esc_html__( 'Order Details', 'ulticommerce' ), [ $this, 'render_meta_box' ], 'ultico_order', 'normal', 'high' );
+        add_meta_box( 'order_delivery', esc_html__( 'Delivery & Tracking', 'ulticommerce' ), [ $this, 'render_delivery_box' ], 'ultico_order', 'side', 'high' );
+        add_meta_box( 'order_notes', esc_html__( 'Order Notes', 'ulticommerce' ), [ $this, 'render_notes_box' ], 'ultico_order', 'normal' );
     }
 
     public function render_status_box( $post ) {
-        $order_status = new UltiCommerce_Order_Statuses();
+        $order_status = new Ultico_Order_Statuses();
         echo '<div class="uti-status-box">';
         $order_status->render_status_dropdown( $post );
         echo '</div>';
@@ -284,7 +284,7 @@ class UltiCommerce_Order_CPT {
         $recent = array_slice( array_reverse( $log ), 0, 5 );
         foreach ( $recent as $entry ) {
             echo '<li style="padding:4px 0;border-bottom:1px solid #f0f0f0;">';
-            echo '<strong>' . esc_html( UltiCommerce_Order_Statuses::get_label( $entry['status'] ) ) . '</strong>';
+            echo '<strong>' . esc_html( Ultico_Order_Statuses::get_label( $entry['status'] ) ) . '</strong>';
             echo ' <span style="color:#999;">' . esc_html( $entry['time'] ) . '</span>';
             if ( ! empty( $entry['by'] ) ) echo ' <span style="color:#999;">— ' . esc_html( $entry['by'] ) . '</span>';
             echo '</li>';
@@ -299,8 +299,8 @@ class UltiCommerce_Order_CPT {
             <tr><th><?php esc_html_e( 'Order Number', 'ulticommerce' ); ?></th><td><strong>#<?php echo esc_html( get_post_meta( $post->ID, '_order_number', true ) ); ?></strong></td></tr>
             <tr><th><?php esc_html_e( 'Status', 'ulticommerce' ); ?></th><td><?php
                 $s = get_post_meta( $post->ID, '_order_status', true ) ?: 'new';
-                $c = UltiCommerce_Order_Statuses::get_badge_class( $s );
-                echo '<span class="uti-badge ' . esc_attr( $c ) . '">' . esc_html( UltiCommerce_Order_Statuses::get_label( $s ) ) . '</span>';
+                $c = Ultico_Order_Statuses::get_badge_class( $s );
+                echo '<span class="uti-badge ' . esc_attr( $c ) . '">' . esc_html( Ultico_Order_Statuses::get_label( $s ) ) . '</span>';
             ?></td></tr>
             <tr><th><?php esc_html_e( 'Date', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_date', true ) ?: '—' ); ?></td></tr>
             <tr><th><?php esc_html_e( 'Customer', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_first_name', true ) . ' ' . get_post_meta( $post->ID, '_order_last_name', true ) ); ?><br><?php echo esc_html( get_post_meta( $post->ID, '_order_email', true ) ); ?><?php echo get_post_meta( $post->ID, '_order_phone', true ) ? ' — ' . esc_html( get_post_meta( $post->ID, '_order_phone', true ) ) : ''; ?></td></tr>
@@ -312,7 +312,7 @@ class UltiCommerce_Order_CPT {
                 $country = get_post_meta( $post->ID, '_order_country', true );
                 echo esc_html( implode( ', ', array_filter( [ $addr, $city, $state, $zip, $country ] ) ) ?: '—' );
             ?></td></tr>
-            <tr><th><?php esc_html_e( 'Shipping Method', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_shipping_method', true ) ?: '—' ); ?><?php echo $shipping_cost ? ' (' . esc_html( ulti_format_price( $shipping_cost ) ) . ')' : ''; ?></td></tr>
+            <tr><th><?php esc_html_e( 'Shipping Method', 'ulticommerce' ); ?></th><td><?php echo esc_html( get_post_meta( $post->ID, '_order_shipping_method', true ) ?: '—' ); ?><?php echo $shipping_cost ? ' (' . esc_html( ultico_format_price( $shipping_cost ) ) . ')' : ''; ?></td></tr>
             <tr><th><?php esc_html_e( 'Payment Method', 'ulticommerce' ); ?></th><td><?php
                 echo esc_html( get_post_meta( $post->ID, '_order_payment_title', true ) ?: get_post_meta( $post->ID, '_order_payment_method', true ) ?: '—' );
                 $txn = get_post_meta( $post->ID, '_order_transaction_id', true );
@@ -323,14 +323,14 @@ class UltiCommerce_Order_CPT {
                 $discount = get_post_meta( $post->ID, '_order_discount', true );
                 $coupon = get_post_meta( $post->ID, '_order_coupon', true );
                 $total = get_post_meta( $post->ID, '_order_total', true );
-                echo esc_html__( 'Subtotal:', 'ulticommerce' ) . ' ' . esc_html( ulti_format_price( $sub ?: 0 ) ) . '<br>';
+                echo esc_html__( 'Subtotal:', 'ulticommerce' ) . ' ' . esc_html( ultico_format_price( $sub ?: 0 ) ) . '<br>';
                 if ( $discount > 0 ) {
-                    echo esc_html__( 'Discount:', 'ulticommerce' ) . ' -' . esc_html( ulti_format_price( $discount ) );
+                    echo esc_html__( 'Discount:', 'ulticommerce' ) . ' -' . esc_html( ultico_format_price( $discount ) );
                     if ( $coupon ) echo ' (' . esc_html( $coupon ) . ')';
                     echo '<br>';
                 }
-                echo esc_html__( 'Shipping:', 'ulticommerce' ) . ' ' . ( $shipping_cost > 0 ? esc_html( ulti_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce' ) ) . '<br>';
-                echo '<strong>' . esc_html__( 'Total:', 'ulticommerce' ) . ' ' . esc_html( ulti_format_price( $total ?: 0 ) ) . '</strong>';
+                echo esc_html__( 'Shipping:', 'ulticommerce' ) . ' ' . ( $shipping_cost > 0 ? esc_html( ultico_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce' ) ) . '<br>';
+                echo '<strong>' . esc_html__( 'Total:', 'ulticommerce' ) . ' ' . esc_html( ultico_format_price( $total ?: 0 ) ) . '</strong>';
             ?></td></tr>
         </table>
 
@@ -340,7 +340,7 @@ class UltiCommerce_Order_CPT {
             echo '<h3 style="margin-top:20px;">' . esc_html__( 'Order Items', 'ulticommerce' ) . '</h3>';
             echo '<table class="widefat fixed"><thead><tr><th>' . esc_html__( 'Product', 'ulticommerce' ) . '</th><th>' . esc_html__( 'Price', 'ulticommerce' ) . '</th><th>' . esc_html__( 'Qty', 'ulticommerce' ) . '</th><th>' . esc_html__( 'Total', 'ulticommerce' ) . '</th></tr></thead><tbody>';
             foreach ( $items as $item ) {
-                echo '<tr><td>' . esc_html( $item['name'] ?? '' ) . '</td><td>' . esc_html( ulti_format_price( $item['price'] ?? 0 ) ) . '</td><td>' . esc_html( $item['quantity'] ?? 0 ) . '</td><td>' . esc_html( ulti_format_price( ( $item['price'] ?? 0 ) * ( $item['quantity'] ?? 0 ) ) ) . '</td></tr>';
+                echo '<tr><td>' . esc_html( $item['name'] ?? '' ) . '</td><td>' . esc_html( ultico_format_price( $item['price'] ?? 0 ) ) . '</td><td>' . esc_html( $item['quantity'] ?? 0 ) . '</td><td>' . esc_html( ultico_format_price( ( $item['price'] ?? 0 ) * ( $item['quantity'] ?? 0 ) ) ) . '</td></tr>';
             }
             echo '</tbody></table>';
         }
@@ -371,7 +371,7 @@ class UltiCommerce_Order_CPT {
         </div>
         <?php
         wp_enqueue_script( 'ulticommerce-admin' );
-        $ajax_nonce = wp_create_nonce( 'add_order_note_' . $post->ID );
+        $ajax_nonce = wp_create_nonce( 'ultico_add_order_note_' . $post->ID );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
     $("#add-order-note").on("click", function() {
@@ -380,7 +380,7 @@ jQuery(function($) {
         if (!text.trim()) return;
         var spinner = btn.siblings(".spinner");
         spinner.addClass("is-active");
-        $.post(ajaxurl, { action: "ulti_add_order_note", post_id: btn.data("post-id"), text: text, _ajax_nonce: "' . esc_js( $ajax_nonce ) . '" }, function(resp) {
+        $.post(ajaxurl, { action: "ultico_add_order_note", post_id: btn.data("post-id"), text: text, _ajax_nonce: "' . esc_js( $ajax_nonce ) . '" }, function(resp) {
             spinner.removeClass("is-active");
             if (resp.success) { location.reload(); }
         });
@@ -390,13 +390,13 @@ jQuery(function($) {
     }
 
     public function render_delivery_box( $post ) {
-        wp_nonce_field( 'ulti_save_order_meta', '_ulti_order_nonce' );
+        wp_nonce_field( 'ultico_save_order_meta', '_ultico_order_nonce' );
         $tracking = get_post_meta( $post->ID, '_order_tracking_number', true );
         $courier  = get_post_meta( $post->ID, '_order_courier_name', true );
         $weight   = get_post_meta( $post->ID, '_order_packing_weight', true );
         $note     = get_post_meta( $post->ID, '_order_packing_note', true );
         $status   = get_post_meta( $post->ID, '_order_status', true ) ?: 'new';
-        $is_final = UltiCommerce_Order_Statuses::is_final_status( $status );
+        $is_final = Ultico_Order_Statuses::is_final_status( $status );
         ?>
         <table class="form-table" style="margin-top:0;">
             <tr>
@@ -434,7 +434,7 @@ jQuery(function($) {
 
     public function save_order_meta( $post_id ) {
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
-        if ( ! isset( $_POST['_ulti_order_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_ulti_order_nonce'] ) ), 'ulti_save_order_meta' ) ) {
+        if ( ! isset( $_POST['_ultico_order_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_ultico_order_nonce'] ) ), 'ultico_save_order_meta' ) ) {
             return;
         }
         if ( ! current_user_can( 'edit_post', $post_id ) ) return;
@@ -444,15 +444,15 @@ jQuery(function($) {
             $new = sanitize_text_field( wp_unslash( $_POST['_order_status'] ) );
 
             if ( $old !== $new ) {
-                if ( ! UltiCommerce_Order_Statuses::can_transition( $old, $new ) ) {
+                if ( ! Ultico_Order_Statuses::can_transition( $old, $new ) ) {
                     return;
                 }
                 update_post_meta( $post_id, '_order_status', $new );
                 self::log_status_change( $post_id, $new );
-                do_action( 'ulti_order_status_changed', $post_id, $old, $new );
+                do_action( 'ultico_order_status_changed', $post_id, $old, $new );
 
                 if ( $new === 'paid' && $old !== 'paid' ) {
-                    do_action( 'ulti_order_paid', $post_id );
+                    do_action( 'ultico_order_paid', $post_id );
                 }
             }
         }
@@ -474,7 +474,7 @@ jQuery(function($) {
         $old_courier  = get_post_meta( $post_id, '_order_courier_name', true );
         $new_courier  = sanitize_text_field( wp_unslash( $_POST['_order_courier_name'] ?? '' ) );
         if ( $new_tracking && $new_tracking !== $old_tracking ) {
-            do_action( 'ulti_order_tracking_updated', $post_id, $new_tracking, $new_courier );
+            do_action( 'ultico_order_tracking_updated', $post_id, $new_tracking, $new_courier );
         }
     }
 
@@ -490,7 +490,7 @@ jQuery(function($) {
     }
 
     public function bulk_status_actions( $actions ) {
-        foreach ( UltiCommerce_Order_Statuses::get_statuses() as $slug => $label ) {
+        foreach ( Ultico_Order_Statuses::get_statuses() as $slug => $label ) {
             /* translators: %s: order status label */
             $actions[ 'set_status_' . $slug ] = sprintf( esc_html__( 'Set status to %s', 'ulticommerce' ), esc_html( $label ) );
         }
@@ -500,19 +500,19 @@ jQuery(function($) {
     public function handle_bulk_status_action( $redirect_to, $doaction, $post_ids ) {
         if ( strpos( $doaction, 'set_status_' ) !== 0 ) return $redirect_to;
         $status = substr( $doaction, 11 );
-        if ( ! isset( UltiCommerce_Order_Statuses::get_statuses()[ $status ] ) ) return $redirect_to;
+        if ( ! isset( Ultico_Order_Statuses::get_statuses()[ $status ] ) ) return $redirect_to;
 
         $processed = 0;
         $skipped   = 0;
         foreach ( $post_ids as $pid ) {
             $old = get_post_meta( $pid, '_order_status', true ) ?: 'new';
-            if ( ! UltiCommerce_Order_Statuses::can_transition( $old, $status ) ) {
+            if ( ! Ultico_Order_Statuses::can_transition( $old, $status ) ) {
                 $skipped++;
                 continue;
             }
             update_post_meta( $pid, '_order_status', $status );
             self::log_status_change( $pid, $status );
-            do_action( 'ulti_order_status_changed', $pid, $old, $status );
+            do_action( 'ultico_order_status_changed', $pid, $old, $status );
             $processed++;
         }
         $redirect_to = add_query_arg( [
@@ -524,7 +524,7 @@ jQuery(function($) {
 
     public function bulk_action_admin_notice() {
         $screen = get_current_screen();
-        if ( ! $screen || $screen->id !== 'edit-order' ) return;
+        if ( ! $screen || $screen->id !== 'edit-ultico_order' ) return;
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
         if ( ! empty( $_GET['bulk_processed'] ) ) {
             $processed = intval( wp_unslash( $_GET['bulk_processed'] ) );
@@ -539,7 +539,7 @@ jQuery(function($) {
     }
 
     public function ajax_bulk_update_status() {
-        check_ajax_referer( 'ulti_bulk_status' );
+        check_ajax_referer( 'ultico_bulk_status' );
         if ( ! current_user_can( 'edit_others_posts' ) ) wp_send_json_error();
         $post_ids = array_map( 'intval', (array) wp_unslash( $_POST['post_ids'] ?? [] ) );
         $status   = sanitize_text_field( wp_unslash( $_POST['status'] ?? '' ) );
@@ -547,17 +547,17 @@ jQuery(function($) {
         $invalid  = 0;
         foreach ( $post_ids as $pid ) {
             $old = get_post_meta( $pid, '_order_status', true ) ?: 'new';
-            if ( UltiCommerce_Order_Statuses::is_final_status( $old ) ) {
+            if ( Ultico_Order_Statuses::is_final_status( $old ) ) {
                 $skipped++;
                 continue;
             }
-            if ( ! UltiCommerce_Order_Statuses::can_transition( $old, $status ) ) {
+            if ( ! Ultico_Order_Statuses::can_transition( $old, $status ) ) {
                 $invalid++;
                 continue;
             }
             update_post_meta( $pid, '_order_status', $status );
             self::log_status_change( $pid, $status );
-            do_action( 'ulti_order_status_changed', $pid, $old, $status );
+            do_action( 'ultico_order_status_changed', $pid, $old, $status );
         }
         wp_send_json_success( [ 'skipped' => $skipped, 'invalid' => $invalid ] );
     }
@@ -566,7 +566,7 @@ jQuery(function($) {
         $post_id = intval( wp_unslash( $_POST['post_id'] ?? 0 ) );
         $text    = sanitize_textarea_field( wp_unslash( $_POST['text'] ?? '' ) );
         if ( ! $post_id || ! $text ) wp_send_json_error();
-        check_ajax_referer( 'add_order_note_' . $post_id, '_ajax_nonce' );
+        check_ajax_referer( 'ultico_add_order_note_' . $post_id, '_ajax_nonce' );
         if ( ! current_user_can( 'edit_post', $post_id ) ) wp_send_json_error();
 
         $notes = get_post_meta( $post_id, '_order_notes', true ) ?: [];
@@ -581,13 +581,18 @@ jQuery(function($) {
     }
 
     public function handle_print_invoice() {
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended
-        if ( ! isset( $_GET['print-invoice'] ) ) return;
+        if ( ! isset( $_GET['print-invoice'] ) ) {
+            return;
+        }
+        if ( ! isset( $_GET['_invoice_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_invoice_nonce'] ) ), 'ultico_print_invoice' ) ) {
+            wp_die( esc_html__( 'Security check failed.', 'ulticommerce' ) );
+        }
         $post_id = intval( $_GET['post'] ?? ( get_query_var( 'view-order' ) ?: 0 ) );
-        // phpcs:enable WordPress.Security.NonceVerification.Recommended
-        if ( ! $post_id || get_post_type( $post_id ) !== 'order' ) return;
+        if ( ! $post_id || get_post_type( $post_id ) !== 'ultico_order' ) {
+            return;
+        }
         $order_customer_id = (int) get_post_meta( $post_id, '_order_customer_id', true );
-        if ( $order_customer_id && $order_customer_id !== get_current_user_id() && ! current_user_can( 'edit_post', $post_id ) ) {
+        if ( ! current_user_can( 'edit_post', $post_id ) && ( ! $order_customer_id || $order_customer_id !== get_current_user_id() ) ) {
             wp_die( esc_html__( 'Unauthorized.', 'ulticommerce' ) );
         }
         $this->stream_invoice_pdf( $post_id );
@@ -595,13 +600,13 @@ jQuery(function($) {
 
     public function print_invoice() {
         $post_id = intval( $_GET['post'] ?? 0 );
-        if ( ! $post_id || get_post_type( $post_id ) !== 'order' ) {
+        if ( ! $post_id || get_post_type( $post_id ) !== 'ultico_order' ) {
             wp_die( esc_html__( 'Invalid order.', 'ulticommerce' ) );
         }
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             wp_die( esc_html__( 'Unauthorized.', 'ulticommerce' ) );
         }
-        check_admin_referer( 'print_invoice_' . $post_id );
+        check_admin_referer( 'ultico_print_invoice_' . $post_id );
         $this->stream_invoice_pdf( $post_id );
     }
 
@@ -677,20 +682,7 @@ jQuery(function($) {
         ?>
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title><?php /* translators: %s: order number */ printf( esc_html__( 'Invoice #%s', 'ulticommerce' ), esc_html( $order_num ) ); ?></title>
-<style>
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: #333; margin: 40px; }
-.invoice { max-width: 700px; margin: 0 auto; }
-.header { border-bottom: 2px solid #0052cc; padding-bottom: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-.header h1 { margin: 0; font-size: 28px; color: #0052cc; }
-.header .meta { text-align: right; font-size: 13px; color: #666; }
-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-th { background: #f5f7fa; text-align: left; padding: 10px 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
-td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
-.summary { margin-top: 16px; text-align: right; }
-.summary div { margin: 4px 0; }
-.total { font-size: 20px; font-weight: 700; color: #0052cc; }
-.footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #999; }
-</style>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:#333;margin:40px}.invoice{max-width:700px;margin:0 auto}.header{border-bottom:2px solid #0052cc;padding-bottom:20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end}.header h1{margin:0;font-size:28px;color:#0052cc}.header .meta{text-align:right;font-size:13px;color:#666}table{width:100%;border-collapse:collapse;margin:20px 0}th{background:#f5f7fa;text-align:left;padding:10px 12px;font-size:13px;text-transform:uppercase;letter-spacing:.5px}td{padding:10px 12px;border-bottom:1px solid #e5e7eb}.summary{margin-top:16px;text-align:right}.summary div{margin:4px 0}.total{font-size:20px;font-weight:700;color:#0052cc}.footer{margin-top:40px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#999}</style>
 </head><body>
 <div class="invoice">
 <div class="header">
@@ -710,15 +702,15 @@ td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
 <table><thead><tr><th><?php esc_html_e( 'Product', 'ulticommerce' ); ?></th><th><?php esc_html_e( 'Price', 'ulticommerce' ); ?></th><th><?php esc_html_e( 'Qty', 'ulticommerce' ); ?></th><th><?php esc_html_e( 'Total', 'ulticommerce' ); ?></th></tr></thead>
 <tbody>
 <?php foreach ( $items as $item ) : ?>
-<tr><td><?php echo esc_html( $item['name'] ?? '' ); ?></td><td><?php echo esc_html( ulti_format_price( $item['price'] ?? 0 ) ); ?></td><td><?php echo esc_html( $item['quantity'] ?? 0 ); ?></td><td><?php echo esc_html( ulti_format_price( ( $item['price'] ?? 0 ) * ( $item['quantity'] ?? 0 ) ) ); ?></td></tr>
+<tr><td><?php echo esc_html( $item['name'] ?? '' ); ?></td><td><?php echo esc_html( ultico_format_price( $item['price'] ?? 0 ) ); ?></td><td><?php echo esc_html( $item['quantity'] ?? 0 ); ?></td><td><?php echo esc_html( ultico_format_price( ( $item['price'] ?? 0 ) * ( $item['quantity'] ?? 0 ) ) ); ?></td></tr>
 <?php endforeach; ?>
 </tbody></table>
 
 <div class="summary">
-<div><?php esc_html_e( 'Subtotal:', 'ulticommerce' ); ?> <?php echo esc_html( ulti_format_price( $subtotal ?: 0 ) ); ?></div>
-<?php if ( $discount > 0 ) : ?><div><?php esc_html_e( 'Discount:', 'ulticommerce' ); ?> -<?php echo esc_html( ulti_format_price( $discount ) ); ?></div><?php endif; ?>
-<div><?php esc_html_e( 'Shipping:', 'ulticommerce' ); ?> <?php echo $shipping_cost > 0 ? esc_html( ulti_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce' ); ?></div>
-<div class="total"><?php esc_html_e( 'Total:', 'ulticommerce' ); ?> <?php echo esc_html( ulti_format_price( $total ?: 0 ) ); ?></div>
+<div><?php esc_html_e( 'Subtotal:', 'ulticommerce' ); ?> <?php echo esc_html( ultico_format_price( $subtotal ?: 0 ) ); ?></div>
+<?php if ( $discount > 0 ) : ?><div><?php esc_html_e( 'Discount:', 'ulticommerce' ); ?> -<?php echo esc_html( ultico_format_price( $discount ) ); ?></div><?php endif; ?>
+<div><?php esc_html_e( 'Shipping:', 'ulticommerce' ); ?> <?php echo $shipping_cost > 0 ? esc_html( ultico_format_price( $shipping_cost ) ) : esc_html__( 'Free', 'ulticommerce' ); ?></div>
+<div class="total"><?php esc_html_e( 'Total:', 'ulticommerce' ); ?> <?php echo esc_html( ultico_format_price( $total ?: 0 ) ); ?></div>
 </div>
 
 <div class="footer">
@@ -731,16 +723,16 @@ td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
     }
 
     public function prevent_trash_final_status( $post_id ) {
-        if ( get_post_type( $post_id ) !== 'order' ) return;
+        if ( get_post_type( $post_id ) !== 'ultico_order' ) return;
         $status = get_post_meta( $post_id, '_order_status', true ) ?: 'new';
-        if ( UltiCommerce_Order_Statuses::is_final_status( $status ) ) {
+        if ( Ultico_Order_Statuses::is_final_status( $status ) ) {
             wp_die( esc_html__( 'This order has a final status (Canceled, Refunded, or Delivered) and cannot be moved to Trash.', 'ulticommerce' ) );
         }
     }
 
     public function admin_scripts( $hook ) {
         $screen = get_current_screen();
-        if ( ! $screen || $screen->post_type !== 'order' ) return;
+        if ( ! $screen || $screen->post_type !== 'ultico_order' ) return;
         wp_enqueue_style( 'ulticommerce-admin' );
         wp_enqueue_script( 'ulticommerce-admin' );
 
@@ -763,7 +755,7 @@ jQuery(function($) {
         var badge = $(".order-status-badge[data-post-id=\"" + postId + "\"]");
 
         $.post(ajaxurl, {
-            action: "ulti_update_order_status",
+            action: "ultico_update_order_status",
             post_id: postId,
             status: status,
             _ajax_nonce: nonce
@@ -794,4 +786,4 @@ jQuery(function($) {
     }
 }
 
-new UltiCommerce_Order_CPT();
+new Ultico_Order_CPT();

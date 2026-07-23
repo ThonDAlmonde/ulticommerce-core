@@ -2,7 +2,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Order_Statuses {
+class Ultico_Order_Statuses {
 
     private static $final_statuses = [ 'canceled', 'refunded', 'delivered' ];
 
@@ -40,19 +40,19 @@ class UltiCommerce_Order_Statuses {
 
     public function __construct() {
         add_action( 'init', [ $this, 'register_statuses' ] );
-        add_action( 'wp_ajax_ulti_update_order_status', [ $this, 'ajax_update_status' ] );
-        add_action( 'ulti_order_status_changed', [ $this, 'handle_deduct_stock' ], 10, 3 );
-        add_action( 'ulti_order_status_changed', [ $this, 'handle_stock_on_status_change' ], 20, 3 );
-        add_action( 'ulti_order_paid', [ $this, 'notify_paid_order' ], 20, 1 );
-        add_action( 'ulti_order_delivery_status_changed', [ $this, 'notify_delivery_update' ], 10, 2 );
+        add_action( 'wp_ajax_ultico_update_order_status', [ $this, 'ajax_update_status' ] );
+        add_action( 'ultico_order_status_changed', [ $this, 'handle_deduct_stock' ], 10, 3 );
+        add_action( 'ultico_order_status_changed', [ $this, 'handle_stock_on_status_change' ], 20, 3 );
+        add_action( 'ultico_order_paid', [ $this, 'notify_paid_order' ], 20, 1 );
+        add_action( 'ultico_order_delivery_status_changed', [ $this, 'notify_delivery_update' ], 10, 2 );
     }
 
     public static function get_statuses() {
-        return apply_filters( 'ulti_custom_order_statuses', self::$statuses );
+        return apply_filters( 'ultico_custom_order_statuses', self::$statuses );
     }
 
     public static function get_final_statuses() {
-        return apply_filters( 'ulti_final_order_statuses', self::$final_statuses );
+        return apply_filters( 'ultico_final_order_statuses', self::$final_statuses );
     }
 
     public static function is_final_status( $status ) {
@@ -65,7 +65,7 @@ class UltiCommerce_Order_Statuses {
     }
 
     public static function get_allowed_transitions( $from ) {
-        $map = apply_filters( 'ulti_allowed_status_transitions', self::$allowed_transitions );
+        $map = apply_filters( 'ultico_allowed_status_transitions', self::$allowed_transitions );
         return $map[ $from ] ?? [];
     }
 
@@ -93,7 +93,7 @@ class UltiCommerce_Order_Statuses {
             'shipping'          => 'badge-primary',
             'delivered'         => 'badge-success',
         ];
-        $map = apply_filters( 'ulti_order_status_badge_classes', $map );
+        $map = apply_filters( 'ultico_order_status_badge_classes', $map );
         return $map[ $status ] ?? 'badge-primary';
     }
 
@@ -115,12 +115,12 @@ class UltiCommerce_Order_Statuses {
         $allowed = self::get_allowed_transitions( $current );
         ?>
         <?php if ( $is_final ) : ?>
-        <select id="ulti-order-status-select" name="_order_status" class="widefat" disabled>
+        <select id="ultico-order-status-select" name="_order_status" class="widefat" disabled>
             <option value="<?php echo esc_attr( $current ); ?>" selected><?php echo esc_html( self::get_label( $current ) ); ?></option>
         </select>
         <p style="color:#999;font-size:12px;margin:4px 0 0;"><?php esc_html_e( 'Final status — cannot be changed.', 'ulticommerce' ); ?></p>
         <?php else : ?>
-        <select id="ulti-order-status-select" name="_order_status" class="widefat">
+        <select id="ultico-order-status-select" name="_order_status" class="widefat">
             <?php foreach ( self::get_statuses() as $slug => $label ) :
                 $disabled = ! in_array( $slug, $allowed, true ) && $slug !== $current ? 'disabled' : '';
             ?>
@@ -129,7 +129,7 @@ class UltiCommerce_Order_Statuses {
                 </option>
             <?php endforeach; ?>
         </select>
-        <button type="button" class="button" id="ulti-order-status-update" style="margin-top:8px;"
+        <button type="button" class="button" id="ultico-order-status-update" style="margin-top:8px;"
                 data-post-id="<?php echo esc_attr( $post->ID ); ?>">
             <?php esc_html_e( 'Update Status', 'ulticommerce' ); ?>
         </button>
@@ -138,17 +138,17 @@ class UltiCommerce_Order_Statuses {
         <?php wp_enqueue_script( 'ulticommerce-admin' ); ?>
         <?php wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
-    $("#ulti-order-status-update").on("click", function() {
+    $("#ultico-order-status-update").on("click", function() {
         var btn = $(this);
-        var status = $("#ulti-order-status-select").val();
+        var status = $("#ultico-order-status-select").val();
         var postId = btn.data("post-id");
         var spinner = btn.siblings(".spinner");
         spinner.addClass("is-active");
         $.post(ajaxurl, {
-            action: "ulti_update_order_status",
+            action: "ultico_update_order_status",
             post_id: postId,
             status: status,
-            _ajax_nonce: "' . esc_js( wp_create_nonce( 'ulti_update_status_' . $post->ID ) ) . '"
+            _ajax_nonce: "' . esc_js( wp_create_nonce( 'ultico_update_status_' . $post->ID ) ) . '"
         }, function(resp) {
             spinner.removeClass("is-active");
             if (resp.success) {
@@ -167,7 +167,7 @@ jQuery(function($) {
     public function ajax_update_status() {
         $post_id = intval( wp_unslash( $_POST['post_id'] ?? 0 ) );
 
-        check_ajax_referer( 'ulti_update_status_' . $post_id, '_ajax_nonce' );
+        check_ajax_referer( 'ultico_update_status_' . $post_id, '_ajax_nonce' );
 
         $status  = sanitize_text_field( wp_unslash( $_POST['status'] ?? '' ) );
 
@@ -191,23 +191,23 @@ jQuery(function($) {
         }
 
         update_post_meta( $post_id, '_order_status', $status );
-        UltiCommerce_Order_CPT::log_status_change( $post_id, $status );
-        do_action( 'ulti_order_status_changed', $post_id, $old_status, $status );
+        Ultico_Order_CPT::log_status_change( $post_id, $status );
+        do_action( 'ultico_order_status_changed', $post_id, $old_status, $status );
 
         if ( $status === 'paid' && $old_status !== 'paid' ) {
-            do_action( 'ulti_order_paid', $post_id );
+            do_action( 'ultico_order_paid', $post_id );
         }
 
         $delivery_statuses = [ 'picking', 'packing', 'dispatched', 'shipping', 'delivered' ];
         if ( in_array( $status, $delivery_statuses, true ) ) {
-            do_action( 'ulti_order_delivery_status_changed', $post_id, $status );
+            do_action( 'ultico_order_delivery_status_changed', $post_id, $status );
         }
 
         wp_send_json_success();
     }
 
     public function handle_deduct_stock( $order_id, $old_status, $new_status ) {
-        $target = get_option( 'ulti_deduct_stock_on_status', 'paid' );
+        $target = get_option( 'ultico_deduct_stock_on_status', 'paid' );
         if ( $new_status !== $target ) return;
         $already = get_post_meta( $order_id, '_order_stock_deducted', true );
         if ( $already ) return;
@@ -228,22 +228,22 @@ jQuery(function($) {
     }
 
     public function notify_paid_order( $order_id ) {
-        if ( function_exists( 'ulti_send_order_email' ) ) {
-            ulti_send_order_email( $order_id, 'payment_received' );
+        if ( function_exists( 'ultico_send_order_email' ) ) {
+            ultico_send_order_email( $order_id, 'payment_received' );
         }
-        if ( function_exists( 'ulti_generate_invoice_pdf' ) ) {
-            ulti_generate_invoice_pdf( $order_id );
+        if ( function_exists( 'ultico_generate_invoice_pdf' ) ) {
+            ultico_generate_invoice_pdf( $order_id );
         }
     }
 
     public function notify_delivery_update( $order_id, $new_status ) {
-        if ( function_exists( 'ulti_send_order_email' ) ) {
-            ulti_send_order_email( $order_id, 'delivery_update' );
+        if ( function_exists( 'ultico_send_order_email' ) ) {
+            ultico_send_order_email( $order_id, 'delivery_update' );
         }
     }
 
     public function handle_stock_on_status_change( $order_id, $old_status, $new_status ) {
-        $restore_statuses = apply_filters( 'ulti_restore_stock_statuses', [ 'refunded', 'canceled' ] );
+        $restore_statuses = apply_filters( 'ultico_restore_stock_statuses', [ 'refunded', 'canceled' ] );
         $items = get_post_meta( $order_id, '_order_items', true ) ?: [];
         $deducted = get_post_meta( $order_id, '_order_stock_deducted', true );
 
@@ -261,4 +261,4 @@ jQuery(function($) {
     }
 }
 
-new UltiCommerce_Order_Statuses();
+new Ultico_Order_Statuses();

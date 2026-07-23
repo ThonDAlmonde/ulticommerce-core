@@ -2,12 +2,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_CPT {
+class Ultico_Product_CPT {
 
     public function __construct() {
         add_action( 'init', [ $this, 'register_post_type' ] );
         add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ] );
-        add_action( 'save_post_product', [ $this, 'save_meta' ] );
+        add_action( 'save_post_ultico_product', [ $this, 'save_meta' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
     }
 
@@ -27,7 +27,7 @@ class UltiCommerce_Product_CPT {
             'menu_name'             => __( 'Products', 'ulticommerce' ),
         ];
 
-        register_post_type( 'product', [
+        register_post_type( 'ultico_product', [
             'labels'       => $labels,
             'public'       => true,
             'has_archive'  => true,
@@ -45,7 +45,7 @@ class UltiCommerce_Product_CPT {
             'product_details',
             esc_html__( 'Product Details', 'ulticommerce' ),
             [ $this, 'render_meta_box' ],
-            'product',
+            'ultico_product',
             'normal',
             'high'
         );
@@ -54,7 +54,7 @@ class UltiCommerce_Product_CPT {
             'product_gallery',
             esc_html__( 'Product Gallery', 'ulticommerce' ),
             [ $this, 'render_gallery_meta_box' ],
-            'product',
+            'ultico_product',
             'side'
         );
 
@@ -62,13 +62,13 @@ class UltiCommerce_Product_CPT {
             'product_enable',
             esc_html__( 'Product Status', 'ulticommerce' ),
             [ $this, 'render_enable_meta_box' ],
-            'product',
+            'ultico_product',
             'side'
         );
     }
 
     public function render_meta_box( $post ) {
-        wp_nonce_field( 'product_details_save', 'product_details_nonce' );
+        wp_nonce_field( 'ultico_product_details_save', 'ultico_product_details_nonce' );
 
         $fields = [
             '_product_sku'            => [ 'SKU', 'text' ],
@@ -112,7 +112,7 @@ class UltiCommerce_Product_CPT {
             <button type="button" class="button" id="add-gallery-images"><?php esc_html_e( 'Add Gallery Images', 'ulticommerce' ); ?></button>
         </div>
         <?php
-        $thumb_nonce = wp_create_nonce( 'ulti_get_attachment_thumb' );
+        $thumb_nonce = wp_create_nonce( 'ultico_get_attachment_thumb' );
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
@@ -125,7 +125,7 @@ jQuery(function($) {
         frame.on("select", function() {
             var ids = frame.state().get("selection").map(function(a) { return a.id; });
             ids.forEach(function(id) {
-                $.post(ajaxurl, { action: "ulti_get_attachment_thumb", attachment_id: id, _ajax_nonce: thumbNonce }, function(html) {
+                $.post(ajaxurl, { action: "ultico_get_attachment_thumb", attachment_id: id, _ajax_nonce: thumbNonce }, function(html) {
                     $("#product-gallery-list").append(
                         "<li data-id=\"" + id + "\">" + html + "<input type=\"hidden\" name=\"_product_gallery[]\" value=\"" + id + "\"><a href=\"#\" class=\"remove-gallery-item\">&times;</a></li>"
                     );
@@ -156,7 +156,7 @@ jQuery(function($) {
     }
 
     public function save_meta( $post_id ) {
-        if ( ! isset( $_POST['product_details_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product_details_nonce'] ) ), 'product_details_save' ) ) {
+        if ( ! isset( $_POST['ultico_product_details_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ultico_product_details_nonce'] ) ), 'ultico_product_details_save' ) ) {
             return;
         }
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -189,21 +189,21 @@ jQuery(function($) {
     }
 
     public function admin_scripts( $hook ) {
-        if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ] ) || get_post_type() !== 'product' ) {
+        if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ] ) || get_post_type() !== 'ultico_product' ) {
             return;
         }
         wp_enqueue_media();
     }
 }
 
-new UltiCommerce_Product_CPT();
+new Ultico_Product_CPT();
 
-add_action( 'wp_ajax_ulti_get_attachment_thumb', 'ulti_get_attachment_thumb_cb' );
-function ulti_get_attachment_thumb_cb() {
+add_action( 'wp_ajax_ultico_get_attachment_thumb', 'ultico_get_attachment_thumb_cb' );
+function ultico_get_attachment_thumb_cb() {
     if ( ! current_user_can( 'upload_files' ) ) {
         wp_die( 'Unauthorized.' );
     }
-    check_ajax_referer( 'ulti_get_attachment_thumb', '_ajax_nonce' );
+    check_ajax_referer( 'ultico_get_attachment_thumb', '_ajax_nonce' );
     $id = intval( wp_unslash( $_POST['attachment_id'] ?? 0 ) );
     echo wp_get_attachment_image( $id, 'thumbnail' );
     wp_die();

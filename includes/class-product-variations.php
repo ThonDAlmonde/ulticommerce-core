@@ -2,21 +2,21 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_Variations {
+class Ultico_Product_Variations {
 
     public function __construct() {
         add_action( 'add_meta_boxes', [ $this, 'add_variations_meta_box' ] );
-        add_action( 'wp_ajax_ulti_save_variations', [ $this, 'ajax_save_variations' ] );
-        add_filter( 'manage_product_posts_columns', [ $this, 'add_variations_column' ] );
-        add_action( 'manage_product_posts_custom_column', [ $this, 'render_variations_column' ], 10, 2 );
+        add_action( 'wp_ajax_ultico_save_variations', [ $this, 'ajax_save_variations' ] );
+        add_filter( 'manage_ultico_product_posts_columns', [ $this, 'add_variations_column' ] );
+        add_action( 'manage_ultico_product_posts_custom_column', [ $this, 'render_variations_column' ], 10, 2 );
     }
 
     public function add_variations_meta_box() {
         add_meta_box(
-            'product_variations',
+            'ultico_product_variations',
             esc_html__( 'Product Variations', 'ulticommerce' ),
             [ $this, 'render_variations_meta_box' ],
-            'product',
+            'ultico_product',
             'normal',
             'default'
         );
@@ -39,7 +39,7 @@ class UltiCommerce_Product_Variations {
                         <tr>
                             <th><?php esc_html_e( 'SKU', 'ulticommerce' ); ?></th>
                             <?php foreach ( $attrs as $attr_name => $attr_data ) : ?>
-                                <th><?php echo esc_html( get_term_by( 'slug', $attr_name, 'product_attribute' )->name ?? $attr_name ); ?></th>
+                                <th><?php echo esc_html( get_term_by( 'slug', $attr_name, 'ultico_product_attribute' )->name ?? $attr_name ); ?></th>
                             <?php endforeach; ?>
                             <th><?php esc_html_e( 'Price', 'ulticommerce' ); ?></th>
                             <th><?php esc_html_e( 'Quantity', 'ulticommerce' ); ?></th>
@@ -94,6 +94,10 @@ jQuery(function($) {
     var basePrice = "' . esc_js( $base_price ) . '";
     var baseSku = "' . esc_js( $base_sku ) . '";
 
+    function escHtml(str) {
+        return $("<span>").text(str).html();
+    }
+
     function cartesianProduct(arrays) {
         return arrays.reduce(function(a, b) {
             return a.flatMap(function(d) { return b.map(function(e) { return [].concat(d, e); }); });
@@ -110,15 +114,15 @@ jQuery(function($) {
 
         combinations.forEach(function(combo) {
             var $row = $("<tr>");
-            $row.append("<td><input type=\"text\" class=\"var-sku\" value=\"" + baseSku + "-" + combo.join("-") + "\"></td>");
+            $row.append("<td><input type=\"text\" class=\"var-sku\" value=\"" + escHtml(baseSku + "-" + combo.join("-")) + "\"></td>");
             attrNames.forEach(function(name, i) {
-                var $select = $("<select class=\"var-attr\" data-attr=\"" + name + "\"><option value=\"\">—</option></select>");
+                var $select = $("<select class=\"var-attr\" data-attr=\"" + escHtml(name) + "\"><option value=\"\">\u2014</option></select>");
                 (attrs[name].values || []).forEach(function(v) {
-                    $select.append("<option value=\"" + v + "\"" + (v === combo[i] ? " selected" : "") + ">" + v + "</option>");
+                    $select.append("<option value=\"" + escHtml(v) + "\"" + (v === combo[i] ? " selected" : "") + ">" + escHtml(v) + "</option>");
                 });
                 $row.append($("<td>").append($select));
             });
-            $row.append("<td><input type=\"number\" step=\"0.01\" class=\"var-price\" value=\"" + basePrice + "\"></td>");
+            $row.append("<td><input type=\"number\" step=\"0.01\" class=\"var-price\" value=\"" + escHtml(basePrice) + "\"></td>");
             $row.append("<td><input type=\"number\" class=\"var-qty\" value=\"0\"></td>");
             $row.append("<td><a href=\"#\" class=\"remove-variation\">Remove</a></td>");
             $tbody.append($row);
@@ -152,10 +156,10 @@ jQuery(function($) {
         });
 
         $.post(ajaxurl, {
-            action: "ulti_save_variations",
+            action: "ultico_save_variations",
             post_id: ' . intval( $post->ID ) . ',
             variations: variations,
-            _ajax_nonce: "' . wp_create_nonce( 'ulti_save_variations' ) . '"
+            _ajax_nonce: "' . wp_create_nonce( 'ultico_save_variations' ) . '"
         }, function(resp) {
             $spinner.removeClass("is-active");
             if (resp.success) {
@@ -171,7 +175,7 @@ jQuery(function($) {
     }
 
     public function ajax_save_variations() {
-        check_ajax_referer( 'ulti_save_variations', '_ajax_nonce' );
+        check_ajax_referer( 'ultico_save_variations', '_ajax_nonce' );
 
         $post_id    = intval( wp_unslash( $_POST['post_id'] ?? 0 ) );
         if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
@@ -196,7 +200,7 @@ jQuery(function($) {
             }
 
             $existing = get_posts( [
-                'post_type'      => 'product_variation',
+                'post_type'      => 'ultico_product_variation',
                 'post_parent'    => $post_id,
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
                 'meta_key'       => '_variation_attr_hash',
@@ -213,7 +217,7 @@ jQuery(function($) {
             }
 
             $post_data = [
-                'post_type'   => 'product_variation',
+                'post_type'   => 'ultico_product_variation',
                 'post_parent' => $post_id,
                 'post_status' => 'publish',
                 'post_title'  => 'Variation #' . ( $var_id ?: 'new' ),
@@ -242,7 +246,7 @@ jQuery(function($) {
         }
 
         $old_variations = get_posts( [
-            'post_type'      => 'product_variation',
+            'post_type'      => 'ultico_product_variation',
             'post_parent'    => $post_id,
             'fields'         => 'ids',
             'posts_per_page' => -1,
@@ -259,7 +263,7 @@ jQuery(function($) {
 
     private function get_variations( $post_id ) {
         $variations = get_posts( [
-            'post_type'      => 'product_variation',
+            'post_type'      => 'ultico_product_variation',
             'post_parent'    => $post_id,
             'posts_per_page' => -1,
             'orderby'        => 'ID',
@@ -281,15 +285,15 @@ jQuery(function($) {
     }
 
     public function add_variations_column( $columns ) {
-        $columns['product_variations'] = esc_html__( 'Variations', 'ulticommerce' );
+        $columns['ultico_product_variations'] = esc_html__( 'Variations', 'ulticommerce' );
         return $columns;
     }
 
     public function render_variations_column( $column, $post_id ) {
-        if ( $column !== 'product_variations' ) return;
+        if ( $column !== 'ultico_product_variations' ) return;
         $count = count( $this->get_variations( $post_id ) );
         echo $count ? esc_html( $count ) : '&mdash;';
     }
 }
 
-new UltiCommerce_Product_Variations();
+new Ultico_Product_Variations();

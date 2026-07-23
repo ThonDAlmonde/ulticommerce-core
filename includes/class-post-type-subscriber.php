@@ -2,22 +2,22 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Subscriber_CPT {
+class Ultico_Subscriber_CPT {
 
     public function __construct() {
         add_action( 'init', [ $this, 'register_post_type' ] );
-        add_filter( 'manage_ulti_subscriber_posts_columns', [ $this, 'custom_columns' ] );
-        add_action( 'manage_ulti_subscriber_posts_custom_column', [ $this, 'custom_column_data' ], 10, 2 );
-        add_filter( 'manage_edit-ulti_subscriber_sortable_columns', [ $this, 'sortable_columns' ] );
+        add_filter( 'manage_ultico_subscriber_posts_columns', [ $this, 'custom_columns' ] );
+        add_action( 'manage_ultico_subscriber_posts_custom_column', [ $this, 'custom_column_data' ], 10, 2 );
+        add_filter( 'manage_edit-ultico_subscriber_sortable_columns', [ $this, 'sortable_columns' ] );
         add_filter( 'post_row_actions', [ $this, 'row_actions' ], 10, 2 );
-        add_action( 'wp_ajax_ulti_toggle_subscriber', [ $this, 'ajax_toggle_subscriber' ] );
+        add_action( 'wp_ajax_ultico_toggle_subscriber', [ $this, 'ajax_toggle_subscriber' ] );
         add_action( 'restrict_manage_posts', [ $this, 'export_button' ] );
         add_action( 'admin_init', [ $this, 'handle_export_csv' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
     }
 
     public function register_post_type() {
-        register_post_type( 'ulti_subscriber', [
+        register_post_type( 'ultico_subscriber', [
             'labels'              => [
                 'name'               => esc_html__( 'Subscribers', 'ulticommerce' ),
                 'singular_name'      => esc_html__( 'Subscriber', 'ulticommerce' ),
@@ -78,10 +78,10 @@ class UltiCommerce_Subscriber_CPT {
     }
 
     public function row_actions( $actions, $post ) {
-        if ( $post->post_type !== 'ulti_subscriber' ) return $actions;
+        if ( $post->post_type !== 'ultico_subscriber' ) return $actions;
 
         $status = get_post_meta( $post->ID, '_subscriber_status', true ) ?: 'active';
-        $nonce = wp_create_nonce( 'toggle_subscriber_' . $post->ID );
+        $nonce = wp_create_nonce( 'ultico_toggle_subscriber_' . $post->ID );
 
         if ( $status === 'active' ) {
             $actions['unsubscribe'] = '<a href="#" class="subscriber-toggle" data-post-id="' . esc_attr( $post->ID ) . '" data-nonce="' . esc_attr( $nonce ) . '" data-action="unsubscribe">' . esc_html__( 'Unsubscribe', 'ulticommerce' ) . '</a>';
@@ -101,7 +101,7 @@ class UltiCommerce_Subscriber_CPT {
             wp_send_json_error( [ 'message' => __( 'Invalid request.', 'ulticommerce' ) ] );
         }
 
-        check_ajax_referer( 'toggle_subscriber_' . $post_id, '_ajax_nonce' );
+        check_ajax_referer( 'ultico_toggle_subscriber_' . $post_id, '_ajax_nonce' );
 
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             wp_send_json_error( [ 'message' => __( 'Unauthorized.', 'ulticommerce' ) ] );
@@ -120,10 +120,10 @@ class UltiCommerce_Subscriber_CPT {
     }
 
     public function export_button( $post_type ) {
-        if ( $post_type !== 'ulti_subscriber' ) return;
-        wp_nonce_field( 'export_subscribers_csv', '_wpnonce_export_csv' );
+        if ( $post_type !== 'ultico_subscriber' ) return;
+        wp_nonce_field( 'ultico_export_subscribers_csv', '_wpnonce_export_csv' );
         ?>
-        <button type="submit" name="export_subscribers_csv" value="1" class="button" style="margin-left:6px;">
+        <button type="submit" name="ultico_export_subscribers_csv" value="1" class="button" style="margin-left:6px;">
             <?php esc_html_e( 'Export CSV', 'ulticommerce' ); ?>
         </button>
         <?php
@@ -131,7 +131,7 @@ class UltiCommerce_Subscriber_CPT {
 
     public function handle_export_csv() {
         // phpcs:disable WordPress.Security.NonceVerification.Recommended
-        if ( empty( $_GET['export_subscribers_csv'] ) || empty( $_GET['post_type'] ) || $_GET['post_type'] !== 'ulti_subscriber' ) {
+        if ( empty( $_GET['ultico_export_subscribers_csv'] ) || empty( $_GET['post_type'] ) || $_GET['post_type'] !== 'ultico_subscriber' ) {
             return;
         }
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -139,10 +139,10 @@ class UltiCommerce_Subscriber_CPT {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Unauthorized.' );
         }
-        check_admin_referer( 'export_subscribers_csv', '_wpnonce_export_csv' );
+        check_admin_referer( 'ultico_export_subscribers_csv', '_wpnonce_export_csv' );
 
         $subscribers = get_posts( [
-            'post_type'      => 'ulti_subscriber',
+            'post_type'      => 'ultico_subscriber',
             'post_status'    => 'any',
             'posts_per_page' => -1,
             'orderby'        => 'date',
@@ -172,7 +172,7 @@ class UltiCommerce_Subscriber_CPT {
 
     public function admin_scripts( $hook ) {
         $screen = get_current_screen();
-        if ( ! $screen || $screen->post_type !== 'ulti_subscriber' ) return;
+        if ( ! $screen || $screen->post_type !== 'ultico_subscriber' ) return;
         wp_enqueue_style( 'ulticommerce-admin' );
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
@@ -186,7 +186,7 @@ jQuery(function($) {
         var newStatus = action === "unsubscribe" ? "unsubscribed" : "active";
 
         $.post(ajaxurl, {
-            action: "ulti_toggle_subscriber",
+            action: "ultico_toggle_subscriber",
             post_id: postId,
             new_status: newStatus,
             _ajax_nonce: nonce
@@ -209,4 +209,4 @@ jQuery(function($) {
     }
 }
 
-new UltiCommerce_Subscriber_CPT();
+new Ultico_Subscriber_CPT();

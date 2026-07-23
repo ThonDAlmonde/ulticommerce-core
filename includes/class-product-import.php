@@ -2,59 +2,59 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_Import {
+class Ultico_Product_Import {
 
     public function __construct() {
         add_action( 'admin_menu', [ $this, 'add_admin_page' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'admin_styles' ] );
-        add_action( 'admin_post_ulti_import_csv', [ $this, 'handle_import' ] );
-        add_action( 'admin_post_ulti_download_sample_csv', [ $this, 'download_sample' ] );
+        add_action( 'admin_post_ultico_import_csv', [ $this, 'handle_import' ] );
+        add_action( 'admin_post_ultico_download_sample_csv', [ $this, 'download_sample' ] );
     }
 
     public function add_admin_page() {
         add_submenu_page(
-            'edit.php?post_type=product',
+            'edit.php?post_type=ultico_product',
             __( 'Import CSV', 'ulticommerce' ),
             __( 'Import CSV', 'ulticommerce' ),
             'manage_options',
-            'product-import-csv',
+            'ultico-product-import-csv',
             [ $this, 'render_page' ]
         );
     }
 
     public function admin_styles( $hook ) {
-        if ( $hook !== 'product_page_product-import-csv' ) return;
+        if ( $hook !== 'product_page_ultico-product-import-csv' ) return;
         wp_enqueue_style( 'ulticommerce-admin' );
     }
 
     public function render_page() {
         if ( ! current_user_can( 'manage_options' ) ) return;
 
-        $results = get_transient( 'ulti_import_results' );
-        delete_transient( 'ulti_import_results' );
+        $results = get_transient( 'ultico_import_results' );
+        delete_transient( 'ultico_import_results' );
         ?>
-        <div class="wrap uti-import-wrap">
+        <div class="wrap ultico-import-wrap">
             <h1><?php esc_html_e( 'Import Products from CSV', 'ulticommerce' ); ?></h1>
 
             <?php if ( $results ) : ?>
-                <div class="uti-import-card">
+                <div class="ultico-import-card">
                     <h2><?php esc_html_e( 'Import Results', 'ulticommerce' ); ?></h2>
-                    <div class="uti-import-stats">
-                        <div class="uti-import-stat">
+                    <div class="ultico-import-stats">
+                        <div class="ultico-import-stat">
                             <span class="num success"><?php echo intval( $results['success'] ); ?></span>
                             <span class="label"><?php esc_html_e( 'Imported', 'ulticommerce' ); ?></span>
                         </div>
-                        <div class="uti-import-stat">
+                        <div class="ultico-import-stat">
                             <span class="num error"><?php echo intval( $results['error'] ); ?></span>
                             <span class="label"><?php esc_html_e( 'Failed', 'ulticommerce' ); ?></span>
                         </div>
-                        <div class="uti-import-stat">
+                        <div class="ultico-import-stat">
                             <span class="num skipped"><?php echo intval( $results['skipped'] ); ?></span>
                             <span class="label"><?php esc_html_e( 'Skipped', 'ulticommerce' ); ?></span>
                         </div>
                     </div>
                     <?php if ( ! empty( $results['log'] ) ) : ?>
-                        <div class="uti-log-list">
+                        <div class="ultico-log-list">
                             <?php foreach ( $results['log'] as $entry ) : ?>
                                 <div class="log-<?php echo esc_attr( $entry['type'] ); ?>">
                                     <?php echo esc_html( '[' . strtoupper( $entry['type'] ) . '] ' . $entry['message'] ); ?>
@@ -65,12 +65,12 @@ class UltiCommerce_Product_Import {
                 </div>
             <?php endif; ?>
 
-            <div class="uti-import-card">
+            <div class="ultico-import-card">
                 <h2><?php esc_html_e( 'Upload CSV', 'ulticommerce' ); ?></h2>
                 <p><?php esc_html_e( 'Upload a CSV file with product data. Maximum file size: 2MB.', 'ulticommerce' ); ?></p>
                 <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-                    <input type="hidden" name="action" value="ulti_import_csv">
-                    <?php wp_nonce_field( 'ulti_import_csv', 'ulti_import_nonce' ); ?>
+                    <input type="hidden" name="action" value="ultico_import_csv">
+                    <?php wp_nonce_field( 'ultico_import_csv', 'ultico_import_nonce' ); ?>
                     <input type="file" name="csv_file" accept=".csv" required style="margin-bottom:12px;display:block;">
                     <p style="margin-bottom:12px;">
                         <label>
@@ -82,7 +82,7 @@ class UltiCommerce_Product_Import {
                 </form>
             </div>
 
-            <div class="uti-import-card">
+            <div class="ultico-import-card">
                 <h2><?php esc_html_e( 'CSV Format', 'ulticommerce' ); ?></h2>
                 <p><?php esc_html_e( 'The CSV file must include a header row. Download the sample file below for the correct format.', 'ulticommerce' ); ?></p>
                 <table class="widefat fixed" style="font-size:12px;">
@@ -113,7 +113,7 @@ class UltiCommerce_Product_Import {
                     </tbody>
                 </table>
                 <p style="margin-top:12px;">
-                    <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ulti_download_sample_csv' ), 'ulti_download_sample' ) ); ?>" class="button">
+                    <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ultico_download_sample_csv' ), 'ultico_download_sample' ) ); ?>" class="button">
                         <?php esc_html_e( 'Download Sample CSV', 'ulticommerce' ); ?>
                     </a>
                 </p>
@@ -124,7 +124,7 @@ class UltiCommerce_Product_Import {
 
     public function handle_import() {
         if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Unauthorized' );
-        check_admin_referer( 'ulti_import_csv', 'ulti_import_nonce' );
+        check_admin_referer( 'ultico_import_csv', 'ultico_import_nonce' );
 
         if ( ! isset( $_FILES['csv_file']['error'] ) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK ) {
             wp_die( 'Upload failed. Please try again.' );
@@ -180,8 +180,8 @@ class UltiCommerce_Product_Import {
 
         // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         fclose( $handle );
-        set_transient( 'ulti_import_results', $results, 60 );
-        wp_safe_redirect( admin_url( 'edit.php?post_type=product&page=product-import-csv' ) );
+        set_transient( 'ultico_import_results', $results, 60 );
+        wp_safe_redirect( admin_url( 'edit.php?post_type=ultico_product&page=ultico-product-import-csv' ) );
         exit;
     }
 
@@ -189,7 +189,7 @@ class UltiCommerce_Product_Import {
         $existing_id = 0;
         if ( $update_existing && ! empty( $data['sku'] ) ) {
             $existing = get_posts( [
-                'post_type'      => 'product',
+                'post_type'      => 'ultico_product',
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
                 'meta_key'       => '_product_sku',
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
@@ -209,7 +209,7 @@ class UltiCommerce_Product_Import {
         }
 
         $post_data = [
-            'post_type'    => 'product',
+            'post_type'    => 'ultico_product',
             'post_status'  => 'publish',
             'post_title'   => $data['title'],
         ];
@@ -268,10 +268,10 @@ class UltiCommerce_Product_Import {
         }
 
         $tax_map = [
-            'categories'  => 'product_category',
-            'brands'      => 'product_brand',
-            'collections' => 'product_collection',
-            'tags'        => 'product_tag',
+            'categories'  => 'ultico_product_category',
+            'brands'      => 'ultico_product_brand',
+            'collections' => 'ultico_product_collection',
+            'tags'        => 'ultico_product_tag',
         ];
 
         foreach ( $tax_map as $csv_key => $taxonomy ) {
@@ -329,7 +329,7 @@ class UltiCommerce_Product_Import {
     private function import_variations( $product_id, $variations ) {
         $attr_hash = md5( serialize( $variations ) );
         $old = get_posts( [
-            'post_type'      => 'product_variation',
+            'post_type'      => 'ultico_product_variation',
             'post_parent'    => $product_id,
             'fields'         => 'ids',
             'posts_per_page' => -1,
@@ -344,7 +344,7 @@ class UltiCommerce_Product_Import {
             }
 
             $existing = get_posts( [
-                'post_type'      => 'product_variation',
+                'post_type'      => 'ultico_product_variation',
                 'post_parent'    => $product_id,
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
                 'meta_key'       => '_variation_attr_hash',
@@ -357,7 +357,7 @@ class UltiCommerce_Product_Import {
             $var_id = ! empty( $existing ) ? $existing[0] : 0;
 
             $post_data = [
-                'post_type'   => 'product_variation',
+                'post_type'   => 'ultico_product_variation',
                 'post_parent' => $product_id,
                 'post_status' => 'publish',
                 'post_title'  => 'Variation',
@@ -388,7 +388,7 @@ class UltiCommerce_Product_Import {
 
     public function download_sample() {
         if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Unauthorized' );
-        check_admin_referer( 'ulti_download_sample' );
+        check_admin_referer( 'ultico_download_sample' );
 
         header( 'Content-Type: text/csv; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename="ulti-product-import-sample.csv"' );
@@ -422,8 +422,8 @@ class UltiCommerce_Product_Import {
             '10',
             '15',
             '1',
-            'https://picsum.photos/seed/1/600/600',
-            'https://picsum.photos/seed/2/600/600|https://picsum.photos/seed/3/600/600',
+            '',
+            '',
             'Electronics|Gadgets',
             'BrandA',
             'Summer 2026',
@@ -440,4 +440,4 @@ class UltiCommerce_Product_Import {
     }
 }
 
-new UltiCommerce_Product_Import();
+new Ultico_Product_Import();

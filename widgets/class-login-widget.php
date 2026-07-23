@@ -2,11 +2,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Login_Widget extends WP_Widget {
+class Ultico_Login_Widget extends WP_Widget {
 
     public function __construct() {
         parent::__construct(
-            'ulti_commerce_login_widget',
+            'ultico_login_widget',
             __( 'UltiCommerce Login', 'ulticommerce' ),
             [ 'description' => __( 'Display SSO login buttons and a login form.', 'ulticommerce' ) ]
         );

@@ -2,7 +2,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-abstract class Ulti_Payment_Gateway {
+abstract class Ultico_Payment_Gateway {
 
     protected $id;
     protected $title;
@@ -51,14 +51,14 @@ abstract class Ulti_Payment_Gateway {
         if ( $transaction_id ) {
             update_post_meta( $order_id, '_order_transaction_id', $transaction_id );
         }
-        do_action( 'ulti_order_status_changed', $order_id, $old, 'paid' );
-        do_action( 'ulti_order_paid', $order_id );
+        do_action( 'ultico_order_status_changed', $order_id, $old, 'paid' );
+        do_action( 'ultico_order_paid', $order_id );
     }
 }
 
 /* ====== BANK WIRE TRANSFER ====== */
 
-class Ulti_Gateway_BankWire extends Ulti_Payment_Gateway {
+class Ultico_Gateway_BankWire extends Ultico_Payment_Gateway {
 
     public function __construct() {
         parent::__construct( 'bank_wire', 'Bank Wire Transfer' );
@@ -76,8 +76,8 @@ class Ulti_Gateway_BankWire extends Ulti_Payment_Gateway {
     }
 
     public static function get_bank_details() {
-        $saved = get_option( 'ulti_bank_wire_details', [] );
-        return apply_filters( 'ulti_bank_wire_details', [
+        $saved = get_option( 'ultico_bank_wire_details', [] );
+        return apply_filters( 'ultico_bank_wire_details', [
             'bank_name'      => $saved['bank_name'] ?? '',
             'account_name'   => $saved['account_holder'] ?? '',
             'account_no'     => $saved['account_number'] ?? '',
@@ -86,20 +86,20 @@ class Ulti_Gateway_BankWire extends Ulti_Payment_Gateway {
             'swift'          => $saved['swift'] ?? '',
             'ifsc'           => $saved['ifsc'] ?? '',
             'iban'           => $saved['iban'] ?? '',
-            'currency'       => get_option( 'ulti_default_currency', 'USD' ),
+            'currency'       => get_option( 'ultico_default_currency', 'USD' ),
         ] );
     }
 }
 
 /* ====== GATEWAY REGISTRY ====== */
 
-class Ulti_Payment_Gateways {
+class Ultico_Payment_Gateways {
 
     private static $gateways = [];
 
     public static function init() {
-        self::register( 'bank_wire', new Ulti_Gateway_BankWire() );
-        do_action( 'ulti_register_payment_gateways' );
+        self::register( 'bank_wire', new Ultico_Gateway_BankWire() );
+        do_action( 'ultico_register_payment_gateways' );
     }
 
     public static function register( $id, $gateway ) {
@@ -127,20 +127,20 @@ class Ulti_Payment_Gateways {
     }
 }
 
-add_action( 'init', [ 'Ulti_Payment_Gateways', 'init' ], 20 );
+add_action( 'init', [ 'Ultico_Payment_Gateways', 'init' ], 20 );
 
 add_action( 'rest_api_init', function () {
-    register_rest_route( 'wpc/v1', '/payment/webhook', [
+    register_rest_route( 'ultico/v1', '/payment/webhook', [
         'methods'             => 'POST',
-        'callback'            => 'ulti_payment_webhook_handler',
+        'callback'            => 'ultico_payment_webhook_handler',
         'permission_callback' => '__return_true',
     ] );
 } );
 
-function ulti_payment_webhook_handler( $request ) {
+function ultico_payment_webhook_handler( $request ) {
     $payload = $request->get_body();
 
-    foreach ( Ulti_Payment_Gateways::get_all() as $gateway ) {
+    foreach ( Ultico_Payment_Gateways::get_all() as $gateway ) {
         if ( $gateway->has_webhook() && $gateway->handle_webhook( $payload ) ) {
             return [ 'status' => 'ok' ];
         }

@@ -2,19 +2,19 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Product_Attributes {
+class Ultico_Product_Attributes {
 
     public function __construct() {
         add_action( 'init', [ $this, 'register_attribute_taxonomy' ] );
-        add_action( 'product_add_form_fields', [ $this, 'add_attribute_fields' ] );
-        add_action( 'product_edit_form_fields', [ $this, 'edit_attribute_fields' ] );
-        add_action( 'save_post_product', [ $this, 'save_attributes' ] );
-        add_filter( 'manage_product_posts_columns', [ $this, 'add_columns' ] );
-        add_action( 'manage_product_posts_custom_column', [ $this, 'render_column' ], 10, 2 );
+        add_action( 'ultico_product_add_form_fields', [ $this, 'add_attribute_fields' ] );
+        add_action( 'ultico_product_edit_form_fields', [ $this, 'edit_attribute_fields' ] );
+        add_action( 'save_post_ultico_product', [ $this, 'save_attributes' ] );
+        add_filter( 'manage_ultico_product_posts_columns', [ $this, 'add_columns' ] );
+        add_action( 'manage_ultico_product_posts_custom_column', [ $this, 'render_column' ], 10, 2 );
     }
 
     public function register_attribute_taxonomy() {
-        register_taxonomy( 'product_attribute', 'product', [
+        register_taxonomy( 'ultico_product_attribute', 'product', [
             'labels' => [
                 'name'              => __( 'Product Attributes', 'ulticommerce' ),
                 'singular_name'     => __( 'Product Attribute', 'ulticommerce' ),
@@ -36,7 +36,7 @@ class UltiCommerce_Product_Attributes {
     }
 
     public function add_attribute_fields() {
-        $attributes = get_terms( [ 'taxonomy' => 'product_attribute', 'hide_empty' => false ] );
+        $attributes = get_terms( [ 'taxonomy' => 'ultico_product_attribute', 'hide_empty' => false ] );
         $product_attrs = [];
         ?>
         <div class="form-field product-attributes-wrap">
@@ -47,7 +47,7 @@ class UltiCommerce_Product_Attributes {
             <button type="button" class="button" id="add-attribute-row"><?php esc_html_e( 'Add Attribute', 'ulticommerce' ); ?></button>
         </div>
         <?php
-        $attr_nonce = wp_create_nonce( 'ulti_edit_attributes' );
+        $attr_nonce = wp_create_nonce( 'ultico_edit_attributes' );
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
@@ -58,7 +58,7 @@ jQuery(function($) {
 
     $("#add-attribute-row").on("click", function() {
         attrIndex++;
-        $.get(ajaxurl, { action: "ulti_get_attribute_row", index: attrIndex, _ajax_nonce: attrNonce }, function(html) {
+        $.get(ajaxurl, { action: "ultico_get_attribute_row", index: attrIndex, _ajax_nonce: attrNonce }, function(html) {
             $container.append(html);
         });
     });
@@ -73,7 +73,7 @@ jQuery(function($) {
         var $values = $row.find(".attr-values");
         var slug = $(this).val();
         if (slug && availableAttrs[slug]) {
-            $.get(ajaxurl, { action: "ulti_get_attr_terms", attr_slug: slug, _ajax_nonce: attrNonce }, function(data) {
+            $.get(ajaxurl, { action: "ultico_get_attr_terms", attr_slug: slug, _ajax_nonce: attrNonce }, function(data) {
                 if (data) {
                     $values.replaceWith(
                         "<input type=\"text\" class=\"attr-values\" name=\"product_attributes[" + $row.data("index") + "][values]\" value=\"" + data.join(", ") + "\" placeholder=\"' . esc_attr__( 'Comma-separated values', 'ulticommerce' ) . '\">"
@@ -87,7 +87,7 @@ jQuery(function($) {
     }
 
     public function edit_attribute_fields( $post ) {
-        $attributes = get_terms( [ 'taxonomy' => 'product_attribute', 'hide_empty' => false ] );
+        $attributes = get_terms( [ 'taxonomy' => 'ultico_product_attribute', 'hide_empty' => false ] );
         $product_attrs = get_post_meta( $post->ID, '_product_attributes', true ) ?: [];
         if ( ! is_array( $product_attrs ) ) $product_attrs = [];
         ?>
@@ -103,7 +103,7 @@ jQuery(function($) {
             </tr>
         </table>
         <?php
-        $attr_nonce = wp_create_nonce( 'ulti_edit_attributes' );
+        $attr_nonce = wp_create_nonce( 'ultico_edit_attributes' );
         wp_enqueue_script( 'ulticommerce-admin' );
         wp_add_inline_script( 'ulticommerce-admin', '
 jQuery(function($) {
@@ -113,7 +113,7 @@ jQuery(function($) {
 
     $("#add-attribute-row").on("click", function() {
         attrIndex++;
-        $.get(ajaxurl, { action: "ulti_get_attribute_row", index: attrIndex, _ajax_nonce: attrNonce }, function(html) {
+        $.get(ajaxurl, { action: "ultico_get_attribute_row", index: attrIndex, _ajax_nonce: attrNonce }, function(html) {
             $container.append(html);
         });
     });
@@ -127,7 +127,7 @@ jQuery(function($) {
     }
 
     private function render_attribute_rows( $post_id, $product_attrs ) {
-        $attributes = get_terms( [ 'taxonomy' => 'product_attribute', 'hide_empty' => false ] );
+        $attributes = get_terms( [ 'taxonomy' => 'ultico_product_attribute', 'hide_empty' => false ] );
         $i = 0;
         if ( ! empty( $product_attrs ) ) {
             foreach ( $product_attrs as $attr_name => $attr_data ) {
@@ -192,17 +192,17 @@ jQuery(function($) {
     }
 }
 
-new UltiCommerce_Product_Attributes();
+new Ultico_Product_Attributes();
 
 // AJAX handlers for attribute meta box — nonce sent via inline script in render_attributes_meta_box
-add_action( 'wp_ajax_ulti_get_attribute_row', 'ulti_get_attribute_row_cb' );
-function ulti_get_attribute_row_cb() {
+add_action( 'wp_ajax_ultico_get_attribute_row', 'ultico_get_attribute_row_cb' );
+function ultico_get_attribute_row_cb() {
     if ( ! current_user_can( 'edit_products' ) ) {
         wp_die( 'Unauthorized.' );
     }
-    check_ajax_referer( 'ulti_edit_attributes', '_ajax_nonce' );
+    check_ajax_referer( 'ultico_edit_attributes', '_ajax_nonce' );
     $index     = intval( wp_unslash( $_GET['index'] ?? 0 ) );
-    $attributes = get_terms( [ 'taxonomy' => 'product_attribute', 'hide_empty' => false ] );
+    $attributes = get_terms( [ 'taxonomy' => 'ultico_product_attribute', 'hide_empty' => false ] );
     ?>
     <div class="attr-row" data-index="<?php echo esc_attr( $index ); ?>">
         <select name="product_attributes[<?php echo esc_attr( $index ); ?>][name]" class="attr-name-select">
@@ -219,16 +219,16 @@ function ulti_get_attribute_row_cb() {
     wp_die();
 }
 
-add_action( 'wp_ajax_ulti_get_attr_terms', 'ulti_get_attr_terms_cb' );
-function ulti_get_attr_terms_cb() {
+add_action( 'wp_ajax_ultico_get_attr_terms', 'ultico_get_attr_terms_cb' );
+function ultico_get_attr_terms_cb() {
     if ( ! current_user_can( 'edit_products' ) ) {
         wp_send_json_error();
     }
-    check_ajax_referer( 'ulti_edit_attributes', '_ajax_nonce' );
+    check_ajax_referer( 'ultico_edit_attributes', '_ajax_nonce' );
     $slug = sanitize_text_field( wp_unslash( $_GET['attr_slug'] ?? '' ) );
-    $terms = get_terms( [ 'taxonomy' => 'product_attribute', 'slug' => $slug, 'hide_empty' => false ] );
+    $terms = get_terms( [ 'taxonomy' => 'ultico_product_attribute', 'slug' => $slug, 'hide_empty' => false ] );
     if ( ! empty( $terms ) ) {
-        $child_terms = get_terms( [ 'taxonomy' => 'product_attribute', 'parent' => $terms[0]->term_id, 'hide_empty' => false, 'fields' => 'names' ] );
+        $child_terms = get_terms( [ 'taxonomy' => 'ultico_product_attribute', 'parent' => $terms[0]->term_id, 'hide_empty' => false, 'fields' => 'names' ] );
         wp_send_json_success( $child_terms );
     }
     wp_send_json_error();

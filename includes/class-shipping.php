@@ -2,7 +2,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class UltiCommerce_Shipping {
+class Ultico_Shipping {
 
     private static $country_alpha2_to_alpha3 = [
         'US' => 'USA', 'TH' => 'THA', 'CN' => 'CHN', 'FR' => 'FRA',
@@ -55,43 +55,43 @@ class UltiCommerce_Shipping {
         add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
         add_action( 'admin_init', [ $this, 'register_settings' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts' ] );
-        add_action( 'wp_ajax_ulti_estimate_shipping', [ $this, 'ajax_estimate_shipping' ] );
-        add_action( 'wp_ajax_nopriv_ulti_estimate_shipping', [ $this, 'ajax_estimate_shipping' ] );
-        add_action( 'admin_post_ulti_shipping_import_csv', [ $this, 'handle_csv_import' ] );
-        add_action( 'admin_post_ulti_shipping_download_csv', [ $this, 'download_csv_template' ] );
-        add_action( 'wp_ajax_ulti_get_shipping_rates', [ $this, 'ajax_get_shipping_rates' ] );
-        add_action( 'wp_ajax_nopriv_ulti_get_shipping_rates', [ $this, 'ajax_get_shipping_rates' ] );
+        add_action( 'wp_ajax_ultico_estimate_shipping', [ $this, 'ajax_estimate_shipping' ] );
+        add_action( 'wp_ajax_nopriv_ultico_estimate_shipping', [ $this, 'ajax_estimate_shipping' ] );
+        add_action( 'admin_post_ultico_shipping_import_csv', [ $this, 'handle_csv_import' ] );
+        add_action( 'admin_post_ultico_shipping_download_csv', [ $this, 'download_csv_template' ] );
+        add_action( 'wp_ajax_ultico_get_shipping_rates', [ $this, 'ajax_get_shipping_rates' ] );
+        add_action( 'wp_ajax_nopriv_ultico_get_shipping_rates', [ $this, 'ajax_get_shipping_rates' ] );
     }
 
     public function add_admin_menu() {
         add_submenu_page(
-            'edit.php?post_type=product',
+            'edit.php?post_type=ultico_product',
             __( 'Shipping', 'ulticommerce' ),
             __( 'Shipping', 'ulticommerce' ),
             'manage_options',
-            'ulti-shipping',
+            'ultico-shipping',
             [ $this, 'render_page' ]
         );
     }
 
     public function register_settings() {
-        register_setting( 'ulti_shipping_settings', 'ulti_shipping_warehouse', [
+        register_setting( 'ultico_shipping_settings', 'ultico_shipping_warehouse', [
             'sanitize_callback' => [ $this, 'sanitize_warehouse' ],
             'default' => [ 'address' => '', 'city' => '', 'state' => '', 'zip' => '', 'country' => 'THA' ],
         ] );
-        register_setting( 'ulti_shipping_settings', 'ulti_shipping_cross_border', [
+        register_setting( 'ultico_shipping_settings', 'ultico_shipping_cross_border', [
             'sanitize_callback' => 'rest_sanitize_boolean',
             'default' => false,
         ] );
-        register_setting( 'ulti_shipping_settings', 'ulti_shipping_supported_countries', [
+        register_setting( 'ultico_shipping_settings', 'ultico_shipping_supported_countries', [
             'sanitize_callback' => [ $this, 'sanitize_countries' ],
             'default' => [ 'THA' ],
         ] );
-        register_setting( 'ulti_shipping_settings', 'ulti_shipping_weight_unit', [
+        register_setting( 'ultico_shipping_settings', 'ultico_shipping_weight_unit', [
             'sanitize_callback' => 'sanitize_text_field',
             'default' => 'g',
         ] );
-        register_setting( 'ulti_shipping_settings', 'ulti_shipping_rates', [
+        register_setting( 'ultico_shipping_settings', 'ultico_shipping_rates', [
             'sanitize_callback' => [ $this, 'sanitize_rates' ],
             'default' => [],
         ] );
@@ -109,8 +109,13 @@ class UltiCommerce_Shipping {
     }
 
     public function sanitize_countries( $input ) {
-        if ( ! is_array( $input ) ) return [];
-        return array_map( 'sanitize_text_field', $input );
+        if ( is_string( $input ) ) {
+            $input = array_map( 'trim', explode( ',', $input ) );
+        }
+        if ( ! is_array( $input ) ) {
+            return [];
+        }
+        return array_filter( array_map( 'sanitize_text_field', $input ) );
     }
 
     public function sanitize_rates( $input ) {
@@ -132,7 +137,7 @@ class UltiCommerce_Shipping {
     }
 
     public function admin_scripts( $hook ) {
-        if ( $hook !== 'products_page_ulti-shipping' ) return;
+        if ( $hook !== 'products_page_ultico-shipping' ) return;
         wp_enqueue_style( 'ulticommerce-admin', plugin_dir_url( __DIR__ ) . 'assets/admin.css', [], '1.0.0' );
         wp_enqueue_script( 'ulticommerce-admin', plugin_dir_url( __DIR__ ) . 'assets/admin.js', [ 'jquery' ], '1.0.0', true );
         wp_add_inline_script( 'ulticommerce-admin', '
@@ -170,42 +175,42 @@ jQuery(function($) {
 
     public function render_page() {
         if ( ! current_user_can( 'manage_options' ) ) return;
-        $warehouse = get_option( 'ulti_shipping_warehouse', [ 'address' => '', 'city' => '', 'state' => '', 'zip' => '', 'country' => 'THA' ] );
-        $cross_border = get_option( 'ulti_shipping_cross_border', false );
-        $supported = get_option( 'ulti_shipping_supported_countries', [ 'THA' ] );
-        $weight_unit = get_option( 'ulti_shipping_weight_unit', 'g' );
-        $rates = get_option( 'ulti_shipping_rates', [] );
+        $warehouse = get_option( 'ultico_shipping_warehouse', [ 'address' => '', 'city' => '', 'state' => '', 'zip' => '', 'country' => 'THA' ] );
+        $cross_border = get_option( 'ultico_shipping_cross_border', false );
+        $supported = get_option( 'ultico_shipping_supported_countries', [ 'THA' ] );
+        $weight_unit = get_option( 'ultico_shipping_weight_unit', 'g' );
+        $rates = get_option( 'ultico_shipping_rates', [] );
         ?>
-        <div class="wrap ulti-shipping-wrap">
+        <div class="wrap ultico-shipping-wrap">
             <h1><?php esc_html_e( 'Shipping Settings', 'ulticommerce' ); ?></h1>
 
             <form method="post" action="options.php">
-                <?php settings_fields( 'ulti_shipping_settings' ); ?>
+                <?php settings_fields( 'ultico_shipping_settings' ); ?>
 
-                <div class="ulti-ship-section">
+                <div class="ultico-ship-section">
                     <h2><?php esc_html_e( 'Warehouse Address', 'ulticommerce' ); ?></h2>
-                    <div class="ulti-field-row">
+                    <div class="ultico-field-row">
                         <div>
                             <label><?php esc_html_e( 'Address', 'ulticommerce' ); ?></label>
-                            <input type="text" name="ulti_shipping_warehouse[address]" value="<?php echo esc_attr( $warehouse['address'] ?? '' ); ?>" class="regular-text">
+                            <input type="text" name="ultico_shipping_warehouse[address]" value="<?php echo esc_attr( $warehouse['address'] ?? '' ); ?>" class="regular-text">
                         </div>
                         <div>
                             <label><?php esc_html_e( 'City', 'ulticommerce' ); ?></label>
-                            <input type="text" name="ulti_shipping_warehouse[city]" value="<?php echo esc_attr( $warehouse['city'] ?? '' ); ?>">
+                            <input type="text" name="ultico_shipping_warehouse[city]" value="<?php echo esc_attr( $warehouse['city'] ?? '' ); ?>">
                         </div>
                         <div>
                             <label><?php esc_html_e( 'State', 'ulticommerce' ); ?></label>
-                            <input type="text" name="ulti_shipping_warehouse[state]" value="<?php echo esc_attr( $warehouse['state'] ?? '' ); ?>">
+                            <input type="text" name="ultico_shipping_warehouse[state]" value="<?php echo esc_attr( $warehouse['state'] ?? '' ); ?>">
                         </div>
                     </div>
-                    <div class="ulti-field-row">
+                    <div class="ultico-field-row">
                         <div>
                             <label><?php esc_html_e( 'ZIP Code', 'ulticommerce' ); ?></label>
-                            <input type="text" name="ulti_shipping_warehouse[zip]" value="<?php echo esc_attr( $warehouse['zip'] ?? '' ); ?>">
+                            <input type="text" name="ultico_shipping_warehouse[zip]" value="<?php echo esc_attr( $warehouse['zip'] ?? '' ); ?>">
                         </div>
                         <div>
                             <label><?php esc_html_e( 'Country', 'ulticommerce' ); ?></label>
-                            <select name="ulti_shipping_warehouse[country]">
+                            <select name="ultico_shipping_warehouse[country]">
                                 <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                                     <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $warehouse['country'] ?? 'THA', $code ); ?>><?php echo esc_html( $label ); ?></option>
                                 <?php endforeach; ?>
@@ -215,10 +220,10 @@ jQuery(function($) {
                     </div>
                 </div>
 
-                <div class="ulti-ship-section">
+                <div class="ultico-ship-section">
                     <h2>
                         <label style="display:flex;align-items:center;gap:8px;">
-                            <input type="checkbox" name="ulti_shipping_cross_border" value="1" id="cb-cross-border" <?php checked( $cross_border ); ?>>
+                            <input type="checkbox" name="ultico_shipping_cross_border" value="1" id="cb-cross-border" <?php checked( $cross_border ); ?>>
                             <?php esc_html_e( 'Enable Cross Border Shipping', 'ulticommerce' ); ?>
                         </label>
                     </h2>
@@ -231,7 +236,7 @@ jQuery(function($) {
                                 <option value="<?php echo esc_attr( $code ); ?>" <?php echo in_array( $code, $supported ) ? 'selected' : ''; ?>><?php echo esc_html( $label ); ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="hidden" name="ulti_shipping_supported_countries" id="supported-countries-input" value="<?php echo esc_attr( implode( ',', $supported ) ); ?>">
+                        <input type="hidden" name="ultico_shipping_supported_countries" id="supported-countries-input" value="<?php echo esc_attr( implode( ',', $supported ) ); ?>">
                         <div id="country-tags">
                             <?php foreach ( $supported as $c ) : ?>
                                 <?php if ( isset( self::$country_list_alpha3[ $c ] ) ) : ?>
@@ -242,9 +247,9 @@ jQuery(function($) {
                     </div>
                 </div>
 
-                <div class="ulti-ship-section">
+                <div class="ultico-ship-section">
                     <h2><?php esc_html_e( 'Weight Unit', 'ulticommerce' ); ?></h2>
-                    <select name="ulti_shipping_weight_unit">
+                    <select name="ultico_shipping_weight_unit">
                         <?php foreach ( self::$weight_units as $key => $info ) : ?>
                             <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $weight_unit, $key ); ?>><?php echo esc_html( $info['label'] ); ?></option>
                         <?php endforeach; ?>
@@ -252,7 +257,7 @@ jQuery(function($) {
                     <p class="description"><?php esc_html_e( 'Unit used for product weight input and shipping rate table.', 'ulticommerce' ); ?></p>
                 </div>
 
-                <div class="ulti-ship-section">
+                <div class="ultico-ship-section">
                     <h2><?php esc_html_e( 'Shipping Rate Table', 'ulticommerce' ); ?></h2>
                     <p style="font-size:13px;color:#666;">
                         <?php esc_html_e( 'Define shipping rates. The system matches the first row where weight &le; Max Weight and Post Code matches the destination. Leave Post Code empty to match all.', 'ulticommerce' ); ?>
@@ -276,20 +281,20 @@ jQuery(function($) {
                             <tbody id="rates-table-body">
                                 <?php foreach ( $rates as $ridx => $row ) : ?>
                                     <tr>
-                                        <td><input type="text" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][provider]" value="<?php echo esc_attr( $row['provider'] ); ?>" placeholder="e.g. Kerry"></td>
-                                        <td><input type="text" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][service]" value="<?php echo esc_attr( $row['service'] ); ?>" placeholder="e.g. Standard"></td>
+                                        <td><input type="text" name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][provider]" value="<?php echo esc_attr( $row['provider'] ); ?>" placeholder="e.g. Kerry"></td>
+                                        <td><input type="text" name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][service]" value="<?php echo esc_attr( $row['service'] ); ?>" placeholder="e.g. Standard"></td>
                                         <td>
-                                            <select name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][country]" style="width:120px;">
+                                            <select name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][country]" style="width:120px;">
                                                 <option value=""><?php esc_html_e( 'All', 'ulticommerce' ); ?></option>
                                                 <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                                                     <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $row['country'], $code ); ?>><?php echo esc_html( $code ); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </td>
-                                        <td><input type="number" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][min_weight]" value="<?php echo esc_attr( $row['min_weight'] ); ?>" step="0.001" min="0" class="weight-input"></td>
-                                        <td><input type="number" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][max_weight]" value="<?php echo esc_attr( $row['max_weight'] ); ?>" step="0.001" min="0" class="weight-input"></td>
-                                        <td><input type="text" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][postcode]" value="<?php echo esc_attr( $row['postcode'] ?? '' ); ?>" placeholder="*" style="width:100px;"></td>
-                                        <td><input type="number" name="ulti_shipping_rates[<?php echo esc_attr( $ridx ); ?>][fee]" value="<?php echo esc_attr( $row['fee'] ); ?>" step="0.01" min="0" class="fee-input"></td>
+                                        <td><input type="number" name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][min_weight]" value="<?php echo esc_attr( $row['min_weight'] ); ?>" step="0.001" min="0" class="weight-input"></td>
+                                        <td><input type="number" name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][max_weight]" value="<?php echo esc_attr( $row['max_weight'] ); ?>" step="0.001" min="0" class="weight-input"></td>
+                                        <td><input type="text" name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][postcode]" value="<?php echo esc_attr( $row['postcode'] ?? '' ); ?>" placeholder="*" style="width:100px;"></td>
+                                        <td><input type="number" name="ultico_shipping_rates[<?php echo esc_attr( $ridx ); ?>][fee]" value="<?php echo esc_attr( $row['fee'] ); ?>" step="0.01" min="0" class="fee-input"></td>
                                         <td><span class="remove-row"><?php esc_html_e( 'Remove', 'ulticommerce' ); ?></span></td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -303,37 +308,37 @@ jQuery(function($) {
                 </div>
             </form>
 
-            <div class="ulti-ship-section import-section">
+            <div class="ultico-ship-section import-section">
                 <h2><?php esc_html_e( 'Import / Export Rate Table', 'ulticommerce' ); ?></h2>
                 <p><?php esc_html_e( 'CSV format: provider, service, country, min_weight, max_weight, postcode, fee', 'ulticommerce' ); ?></p>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                     <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-                        <input type="hidden" name="action" value="ulti_shipping_import_csv">
-                        <?php wp_nonce_field( 'ulti_shipping_csv' ); ?>
+                        <input type="hidden" name="action" value="ultico_shipping_import_csv">
+                        <?php wp_nonce_field( 'ultico_shipping_csv' ); ?>
                         <input type="file" name="shipping_csv" accept=".csv" required>
                         <button type="submit" class="button button-primary"><?php esc_html_e( 'Import CSV', 'ulticommerce' ); ?></button>
                     </form>
-                    <a href="<?php echo esc_url( admin_url( 'admin-post.php?action=ulti_shipping_download_csv' ) ); ?>" class="button"><?php esc_html_e( 'Download Template', 'ulticommerce' ); ?></a>
+                    <a href="<?php echo esc_url( admin_url( 'admin-post.php?action=ultico_shipping_download_csv' ) ); ?>" class="button"><?php esc_html_e( 'Download Template', 'ulticommerce' ); ?></a>
                 </div>
             </div>
         </div>
 
         <template id="rate-row-template">
             <tr>
-                <td><input type="text" name="ulti_shipping_rates[__ROWIDX__][provider]" value="" placeholder="e.g. Kerry"></td>
-                <td><input type="text" name="ulti_shipping_rates[__ROWIDX__][service]" value="" placeholder="e.g. Standard"></td>
+                <td><input type="text" name="ultico_shipping_rates[__ROWIDX__][provider]" value="" placeholder="e.g. Kerry"></td>
+                <td><input type="text" name="ultico_shipping_rates[__ROWIDX__][service]" value="" placeholder="e.g. Standard"></td>
                 <td>
-                    <select name="ulti_shipping_rates[__ROWIDX__][country]" style="width:120px;">
+                    <select name="ultico_shipping_rates[__ROWIDX__][country]" style="width:120px;">
                         <option value=""><?php esc_html_e( 'All', 'ulticommerce' ); ?></option>
                         <?php foreach ( self::$country_list_alpha3 as $code => $label ) : ?>
                             <option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $code ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </td>
-                <td><input type="number" name="ulti_shipping_rates[__ROWIDX__][min_weight]" value="" step="0.001" min="0" class="weight-input"></td>
-                <td><input type="number" name="ulti_shipping_rates[__ROWIDX__][max_weight]" value="" step="0.001" min="0" class="weight-input"></td>
-                <td><input type="text" name="ulti_shipping_rates[__ROWIDX__][postcode]" value="" placeholder="*" style="width:100px;"></td>
-                <td><input type="number" name="ulti_shipping_rates[__ROWIDX__][fee]" value="" step="0.01" min="0" class="fee-input"></td>
+                <td><input type="number" name="ultico_shipping_rates[__ROWIDX__][min_weight]" value="" step="0.001" min="0" class="weight-input"></td>
+                <td><input type="number" name="ultico_shipping_rates[__ROWIDX__][max_weight]" value="" step="0.001" min="0" class="weight-input"></td>
+                <td><input type="text" name="ultico_shipping_rates[__ROWIDX__][postcode]" value="" placeholder="*" style="width:100px;"></td>
+                <td><input type="number" name="ultico_shipping_rates[__ROWIDX__][fee]" value="" step="0.01" min="0" class="fee-input"></td>
                 <td><span class="remove-row"><?php esc_html_e( 'Remove', 'ulticommerce' ); ?></span></td>
             </tr>
         </template>
@@ -342,7 +347,7 @@ jQuery(function($) {
 
     public function handle_csv_import() {
         if ( ! current_user_can( 'manage_options' ) ) wp_die( 'Unauthorized.' );
-        check_admin_referer( 'ulti_shipping_csv' );
+        check_admin_referer( 'ultico_shipping_csv' );
 
         if ( empty( $_FILES['shipping_csv']['tmp_name'] ) ) {
             wp_die( esc_html__( 'No file uploaded.', 'ulticommerce' ) );
@@ -402,11 +407,11 @@ jQuery(function($) {
             wp_die( esc_html__( 'No valid rows found in CSV.', 'ulticommerce' ) );
         }
 
-        $existing = get_option( 'ulti_shipping_rates', [] );
+        $existing = get_option( 'ultico_shipping_rates', [] );
         $merged = array_merge( $existing, $rates );
-        update_option( 'ulti_shipping_rates', $merged );
+        update_option( 'ultico_shipping_rates', $merged );
 
-        wp_safe_redirect( admin_url( 'edit.php?post_type=product&page=ulti-shipping&imported=' . count( $rates ) ) );
+        wp_safe_redirect( admin_url( 'edit.php?post_type=ultico_product&page=ultico-shipping&imported=' . count( $rates ) ) );
         exit;
     }
 
@@ -438,8 +443,8 @@ jQuery(function($) {
     }
 
     public static function get_cart_weight_g() {
-        $cart = ulti_get_cart();
-        $unit = get_option( 'ulti_shipping_weight_unit', 'g' );
+        $cart = ultico_get_cart();
+        $unit = get_option( 'ultico_shipping_weight_unit', 'g' );
         $total = 0;
         foreach ( $cart as $item ) {
             $pid = intval( $item['product_id'] ?? 0 );
@@ -448,7 +453,7 @@ jQuery(function($) {
             $attrs = $item['attributes'] ?? [];
             $weight = 0;
             if ( ! empty( $attrs ) ) {
-                $vars = get_posts( [ 'post_type' => 'product_variation', 'post_parent' => $pid, 'posts_per_page' => -1 ] );
+                $vars = get_posts( [ 'post_type' => 'ultico_product_variation', 'post_parent' => $pid, 'posts_per_page' => -1 ] );
                 foreach ( $vars as $var ) {
                     $var_attrs = get_post_meta( $var->ID, '_variation_attributes', true ) ?: [];
                     if ( md5( serialize( $var_attrs ) ) === md5( serialize( $attrs ) ) ) {
@@ -468,13 +473,13 @@ jQuery(function($) {
     /* =============== RATE ENGINE =============== */
 
     public static function get_rates_for_destination( $country, $state = '', $zip = '' ) {
-        $rates = get_option( 'ulti_shipping_rates', [] );
-        $warehouse = get_option( 'ulti_shipping_warehouse', [ 'country' => 'THA' ] );
-        $cross_border = get_option( 'ulti_shipping_cross_border', false );
-        $supported = get_option( 'ulti_shipping_supported_countries', [ 'THA' ] );
+        $rates = get_option( 'ultico_shipping_rates', [] );
+        $warehouse = get_option( 'ultico_shipping_warehouse', [ 'country' => 'THA' ] );
+        $cross_border = get_option( 'ultico_shipping_cross_border', false );
+        $supported = get_option( 'ultico_shipping_supported_countries', [ 'THA' ] );
         $total_weight_g = self::get_cart_weight_g();
-        $cart = ulti_get_cart();
-        $subtotal = ulti_cart_subtotal();
+        $cart = ultico_get_cart();
+        $subtotal = ultico_cart_subtotal();
 
         $warehouse_country = $warehouse['country'] ?? 'THA';
         $domestic_only = ! $cross_border;
@@ -502,8 +507,8 @@ jQuery(function($) {
             $min_w = floatval( $row['min_weight'] ?? 0 );
             $max_w = floatval( $row['max_weight'] ?? 0 );
 
-            if ( $min_w > 0 && $total_weight_g < self::convert_to_g( $min_w, get_option( 'ulti_shipping_weight_unit', 'g' ) ) ) continue;
-            if ( $max_w > 0 && $total_weight_g > self::convert_to_g( $max_w, get_option( 'ulti_shipping_weight_unit', 'g' ) ) ) continue;
+            if ( $min_w > 0 && $total_weight_g < self::convert_to_g( $min_w, get_option( 'ultico_shipping_weight_unit', 'g' ) ) ) continue;
+            if ( $max_w > 0 && $total_weight_g > self::convert_to_g( $max_w, get_option( 'ultico_shipping_weight_unit', 'g' ) ) ) continue;
 
             $pc = $row['postcode'] ?? '';
             if ( ! empty( $pc ) && ! self::match_postcode( $zip, $pc ) ) continue;
@@ -527,7 +532,7 @@ jQuery(function($) {
             ];
         }
 
-        return apply_filters( 'ulti_shipping_rates', $matching, $country, $state, $zip, $cart );
+        return apply_filters( 'ultico_shipping_rates', $matching, $country, $state, $zip, $cart );
     }
 
     private static function match_postcode( $zip, $pattern ) {
@@ -566,7 +571,7 @@ jQuery(function($) {
     }
 
     public static function get_weight_unit_label( $unit = '' ) {
-        if ( ! $unit ) $unit = get_option( 'ulti_shipping_weight_unit', 'g' );
+        if ( ! $unit ) $unit = get_option( 'ultico_shipping_weight_unit', 'g' );
         return self::$weight_units[ $unit ]['label'] ?? 'Grams (g)';
     }
 
@@ -603,4 +608,4 @@ jQuery(function($) {
     }
 }
 
-new UltiCommerce_Shipping();
+new Ultico_Shipping();
